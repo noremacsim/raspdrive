@@ -93,7 +93,7 @@ function read_setup_variables {
   done
 
   # set defaults for things not set in the config
-  REPO=${REPO:-marcone}
+  REPO=${REPO:-noremasim}
   SNAPSHOTS_ENABLED=${SNAPSHOTS_ENABLED:-true}
   if [ "$SNAPSHOTS_ENABLED" != "true" ]
   then
