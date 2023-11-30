@@ -42,8 +42,6 @@ function mountConnectedUSB {
     mkdir $CONNECTED_USB_LOC
     mount /dev/sda $CONNECTED_USB_LOC
   fi
-
-  sh /root/bin/mountUSB.sh
 }
 
 function createContainerFile {

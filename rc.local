@@ -22,6 +22,7 @@ if [ "$_IP" ]; then
 fi
 
 mountConnectedUSB
+sh /root/bin/mountUSB.sh
 python3 /root/bin/usbService.py
 
 exit 0
