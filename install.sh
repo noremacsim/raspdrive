@@ -3,7 +3,7 @@
 source /root/bin/envsetup.sh
 source /root/bin/functions.sh
 
-if [ -e "$setup_complete" ]; then
+if [ -e "$SETUP_COMPLETE" ]; then
     echo 'Setup has already been completed';
     exit 0;
 else
@@ -17,7 +17,7 @@ else
     mountConnectedUSB
     createContainerFile
     sh /root/bin/apps/configureApps.sh
-    touch "$setup_complete"
+    touch "$SETUP_COMPLETE"
     reboot
 fi
 
