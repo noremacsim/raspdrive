@@ -1,6 +1,6 @@
 #!/bin/bash
 
-apt install samba
+apt -y --force-yes install samba --fix-missing
 
 cat <<- EOF > /etc/samba/smb.conf
 	[global]
