@@ -1,0 +1,16 @@
+#!/bin/bash
+
+source /root/bin/envsetup.sh
+
+title="$1"
+message="$2"
+
+function send_telegram () {
+  curl -sS -o /dev/null "Content-Type: application/json" -d \
+    '{"chat_id": "'"$TELEGRAM_CHAT_ID"'", "text": "'"$title: $message"'", "disable_notification": '"$TELEGRAM_SILENT_NOTIFY"' }' \
+    https://api.telegram.org/"$TELEGRAM_BOT_TOKEN"/sendMessage
+}
+
+send_telegram
+
+exit 0;
