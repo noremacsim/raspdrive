@@ -1,3 +1,7 @@
 TELEGRAM_BOT_TOKEN=''
 TELEGRAM_CHAT_ID=''
 TELEGRAM_SILENT_NOTIFY=''
+
+SETUP_COMPLETE="/root/bin/setup_complete"
+CONNECTED_USB_LOC="/mnt/connectedUSB"
+MOUNT_USB_LOC="/mnt/usbdata"
