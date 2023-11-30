@@ -18,6 +18,7 @@ else
     createContainerFile
     sh /root/bin/apps/configureApps.sh
     touch "$SETUP_COMPLETE"
+    mv /root/bin/rc.local /etc/rc.local
     reboot
 fi
 

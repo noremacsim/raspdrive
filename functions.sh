@@ -33,14 +33,14 @@ function formatConnectedUSB {
 }
 
 function mountConnectedUSB {
-  if [ -e "$connectedUSB_loc" ]; then
-    if mountpoint -q $connectedUSB_loc; then
-        umount -l $connectedUSB_loc
+  if [ -e "$CONNECTED_USB_LOC" ]; then
+    if mountpoint -q $CONNECTED_USB_LOC; then
+        umount -l $CONNECTED_USB_LOC
     fi
-    mount /dev/sda $connectedUSB_loc
+    mount /dev/sda $CONNECTED_USB_LOC
   else
-    mkdir $connectedUSB_loc
-    mount /dev/sda $connectedUSB_loc
+    mkdir $CONNECTED_USB_LOC
+    mount /dev/sda $CONNECTED_USB_LOC
   fi
 
   sh /root/bin/mountUSB.sh

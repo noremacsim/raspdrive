@@ -59,14 +59,14 @@ ln -sf "$gadget_root/functions/mass_storage.0" "$gadget_root/configs/$cfg.1"
 # activate
 ls /sys/class/udc > "$gadget_root/UDC"
 
-if [ -e "$mountUSB_loc" ]; then
-  if mountpoint -q $mountUSB_loc; then
-      umount $mountUSB_loc
+if [ -e "$MOUNT_USB_LOC" ]; then
+  if mountpoint -q $MOUNT_USB_LOC; then
+      umount $MOUNT_USB_LOC
   fi
-  mount /mnt/connectedUSB/usbdata.bin $mountUSB_loc
+  mount /mnt/connectedUSB/usbdata.bin $MOUNT_USB_LOC
 else
-  mkdir $mountUSB_loc
-  mount /mnt/connectedUSB/usbdata.bin $mountUSB_loc
+  mkdir $MOUNT_USB_LOC
+  mount /mnt/connectedUSB/usbdata.bin $MOUNT_USB_LOC
 fi
 
 /bin/bash -eu /root/bin/getFileUpdates.sh
