@@ -1,7 +1,7 @@
-TELEGRAM_BOT_TOKEN=''
-TELEGRAM_CHAT_ID=''
-TELEGRAM_SILENT_NOTIFY=''
+export TELEGRAM_BOT_TOKEN=''
+export TELEGRAM_CHAT_ID=''
+export TELEGRAM_SILENT_NOTIFY=''
 
-SETUP_COMPLETE="/root/bin/setup_complete"
-CONNECTED_USB_LOC="/mnt/connectedUSB"
-MOUNT_USB_LOC="/mnt/usbdata"
+export SETUP_COMPLETE="/root/bin/setup_complete"
+export CONNECTED_USB_LOC="/mnt/connectedUSB"
+export MOUNT_USB_LOC="/mnt/usbdata"
