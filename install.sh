@@ -7,6 +7,8 @@ if [ -e "$SETUP_COMPLETE" ]; then
     echo 'Setup has already been completed';
     exit 0;
 else
+    apt update
+    apt upgrade
     apt-get -y --force-yes install python3
     apt -y --force-yes install python3-pip
     apt -y --force-yes install python3-watchdog
