@@ -12,17 +12,12 @@
 # By default this script does nothing.
 
 # Print the IP address
-
-source /root/bin/envsetup.sh
-source /root/bin/functions.sh
-
 _IP=$(hostname -I) || true
 if [ "$_IP" ]; then
   printf "My IP address is %s\n" "$_IP"
 fi
 
-mountConnectedUSB
-sh /root/bin/mountUSB.sh
-python3 /root/bin/usbService.py
+/bin/bash /root/bin/apps/configureWifi.sh
+/bin/bash /root/bin/boot.sh
 
 exit 0
