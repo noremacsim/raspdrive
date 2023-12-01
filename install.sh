@@ -66,5 +66,10 @@ then
   apt install -y sntp
 fi
 
+if [ ! -x "$(command -v python3-watchdog)" ]
+then
+  apt install -y python3-watchdog
+fi
+
 flash_rapidly
 /etc/rc.local

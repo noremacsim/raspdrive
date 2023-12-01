@@ -611,6 +611,14 @@ then
   DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install "${EXTRA_PACKAGES[@]}"
 fi
 
+if [ -e /boot/RASPDRIVE_SETUP_FINISHED ]
+then
+  setup_progress "Creating USB disk files... This May Take a While..."
+  copy_script boot/createBinUSB.sh /tmp
+  chmod +x /tmp/createBinUSB.sh
+  /tmp/createBinUSB.sh
+fi
+
 headless_setup_mark_setup_success
 
 # Flash for stage 5 headless (Mark success, FS readonly)
