@@ -1,0 +1,7 @@
+IMG_NAME=raspdrive
+HOSTNAME=raspdrive
+STAGE_LIST="stage0 stage1 stage2 stage_usb"
+KEYBOARD_KEYMAP=gb
+KEYBOARD_LAYOUT=English (UK)
+TIMEZONE_DEFAULT=Europe/London
+DISABLE_FIRST_BOOT_USER_RENAME=1

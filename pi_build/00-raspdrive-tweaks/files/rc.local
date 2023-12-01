@@ -18,8 +18,19 @@ then
   printf "My IP address is %s\n" "$_IP"
 fi
 
-systemctl disable keyboard-setup
-systemctl disable userconfig
+if systemctl list-units --all | grep -q "keyboard-setup"; then
+    systemctl disable keyboard-setup
+    echo "Unit keyboard-setup disabled."
+else
+    echo "Unit keyboard-setup does not exist."
+fi
+
+if systemctl list-units --all | grep -q "userconfig"; then
+    systemctl disable userconfig
+    echo "Unit userconfig disabled."
+else
+    echo "Unit userconfig does not exist."
+fi
 
 if [ -f /boot/run_once ]
 then
