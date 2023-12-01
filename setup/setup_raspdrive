@@ -211,10 +211,21 @@ function verify_configuration () {
 
 function get_common_scripts () {
   setup_progress "Downloading common runtime scripts."
+
   copy_script bin/remountfs_rw /root/bin
   copy_script bin/mount_usb.sh /root/bin
   copy_script bin/enable_gadget.sh /root/bin
   copy_script bin/disable_gadget.sh /root/bin
+
+  dos2unix /root/bin/disable_gadget.sh
+  dos2unix /root/bin/enable_gadget.sh
+  dos2unix /root/bin/mount_usb.sh
+  dos2unix /root/bin/remountfs_rw
+
+  chmod +x /root/bin/disable_gadget.sh
+  chmod +x /root/bin/enable_gadget.sh
+  chmod +x /root/bin/mount_usb.sh
+  chmod +x /root/bin/remountfs_rw
 }
 
 # If only the dwc2 module is loaded at boot then the Pi will present
@@ -261,6 +272,7 @@ function create_usb_drive_and_mount_point () {
   copy_script setup/formatUSB.sh /tmp
 
   setup_progress "Formatting USB..."
+  chmod +x /tmp/formatUSB.sh
   /tmp/formatUSB.sh
 
   setup_progress "Mounting the USB..."
@@ -270,6 +282,7 @@ function create_usb_drive_and_mount_point () {
   then
     setup_progress "Creating USB disk files... This May Take a While..."
     copy_script setup/createBinUSB.sh /tmp
+    chmod +x /tmp/createBinUSB.sh
     /tmp/createBinUSB.sh
   fi
 }

@@ -2,6 +2,11 @@
 
 source /root/bin/envsetup.sh
 
+if [ ! -e "/mnt/connectedUSB/usbdata.bin" ]; then
+  echo "error: usbdata.bin not found. maybe mount connected usb first"
+  exit 1
+fi
+
 if ! configfs_root=$(findmnt -o TARGET -n configfs)
 then
   echo "error: configfs not found"

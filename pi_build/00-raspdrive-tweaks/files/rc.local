@@ -18,6 +18,9 @@ then
   printf "My IP address is %s\n" "$_IP"
 fi
 
+systemctl disable keyboard-setup
+systemctl disable userconfig
+
 if [ -f /boot/run_once ]
 then
   cp /boot/run_once /tmp/

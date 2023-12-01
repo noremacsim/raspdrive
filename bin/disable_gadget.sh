@@ -10,7 +10,7 @@ then
   echo "error: configfs not found"
   exit 1
 fi
-readonly gadget_root="$configfs_root/usb_gadget/usb"
+readonly gadget_root="$configfs_root/usb_gadget/RaspDrive"
 
 if [ ! -d "$gadget_root" ]
 then
