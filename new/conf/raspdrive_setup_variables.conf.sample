@@ -10,14 +10,11 @@
 
 export DATA_DRIVE=/dev/sda
 
-export SSID='your_ssid'
-export WIFIPASS='your_pass'
-
 export SAMBA_ENABLED=true
 export SAMBA_GUEST=true
 
-export AP_SSID='RASPDRIVE WIFI'
-export AP_PASS='password'
+export AP_SSID='RASPDRIVE-WIFI'
+export AP_PASS='raspberry'
 
 export USB_HOSTNAME=RASPDRIVE
 
