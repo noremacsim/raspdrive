@@ -1,8 +1,6 @@
 #!/bin/bash -eu
 
 # based on https://blog.thewalr.us/2017/09/26/raspberry-pi-zero-w-simultaneous-ap-and-managed-mode-wifi/
-AP_SSID='RaspDrive'
-AP_PASS='YoungPadawan3205'
 
 function log_progress () {
   if declare -F setup_progress > /dev/null
@@ -26,7 +24,7 @@ fi
 
 if ! grep -q id_str /etc/wpa_supplicant/wpa_supplicant.conf
 then
-  IP="192.168.66.1"
+  IP=${AP_IP:-"192.168.66.1"}
   NET=$(echo -n "$IP" | sed -e 's/\.[0-9]\{1,3\}$//')
 
   # install required packages
@@ -105,7 +103,6 @@ then
 
   # update the host name to have the AP IP address, otherwise
   # clients connected to the IP will get 127.0.0.1 when looking
-  # up the teslausb host name
   sed -i -e "/^127.0.0.1\s*localhost/b; s/^127.0.0.1\(\s*.*\)/$IP\1/" /etc/hosts
 
   # add ID string to wpa_supplicant

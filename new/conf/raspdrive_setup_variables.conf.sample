@@ -1,0 +1,28 @@
+#####################################################################
+# SAMPLE CONFIGURATION FILE FOR USB Pi Setup
+#
+# Example config file for usb_setup. Lines with "#" are comments/ignored.
+# Remove the "#" before "export" to activate a line. Be sure to rename this file
+# to "raspdrive_setup_variables.conf" and place it in the "boot" folder of your
+# SD card.
+#
+######################################################################
+
+export DATA_DRIVE=/dev/sda
+
+export SSID='your_ssid'
+export WIFIPASS='your_pass'
+
+export SAMBA_ENABLED=true
+export SAMBA_GUEST=true
+
+export AP_SSID='RASPDRIVE WIFI'
+export AP_PASS='password'
+
+export USB_HOSTNAME=RASPDRIVE
+
+# Uncomment if setting up Telegram notifications
+# export TELEGRAM_ENABLED=true
+# export TELEGRAM_CHAT_ID=123456789
+# export TELEGRAM_BOT_TOKEN=bot123456789:abcdefghijklmnopqrstuvqxyz987654321
+# export TELEGRAM_SILENT_NOTIFY=false

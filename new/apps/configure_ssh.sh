@@ -1,5 +1,7 @@
 #!/bin/bash -eu
 
+setup_progress "configuring ssh"
+
 # If requested, add the desired SSH public key into /root/.ssh/authorized_keys
 if [ -n "${SSH_ROOT_PUBLIC_KEY:-}" ]
 then

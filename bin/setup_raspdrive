@@ -106,7 +106,7 @@ then
   safesource /root/raspdrive_setup_variables.conf
   REPO=${REPO:-noremacsim}
   BRANCH=${BRANCH:-main}
-  copy_script setup/envsetup.sh "$THISDIR"
+  copy_script boot/envsetup.sh "$THISDIR"
 fi
 # SC can't follow non-constant source
 # shellcheck disable=SC1090
@@ -204,7 +204,7 @@ function headless_setup_progress_flash () {
 }
 
 function verify_configuration () {
-  copy_script setup/verify-configuration.sh /tmp
+  copy_script bin/verify-configuration.sh /tmp
 
   /tmp/verify-configuration.sh
 }
@@ -269,7 +269,7 @@ function fix_cmdline_txt_modules_load () {
 
 
 function create_usb_drive_and_mount_point () {
-  copy_script setup/formatUSB.sh /tmp
+  copy_script boot/formatUSB.sh /tmp
 
   setup_progress "Formatting USB..."
   chmod +x /tmp/formatUSB.sh
@@ -281,7 +281,7 @@ function create_usb_drive_and_mount_point () {
   if [ ! -e /mnt/connectedUSB/usbdata.bin ]
   then
     setup_progress "Creating USB disk files... This May Take a While..."
-    copy_script setup/createBinUSB.sh /tmp
+    copy_script boot/createBinUSB.sh /tmp
     chmod +x /tmp/createBinUSB.sh
     /tmp/createBinUSB.sh
   fi
@@ -306,11 +306,6 @@ function configure_hostname () {
     systemctl restart avahi-daemon || true
     setup_progress "Configured hostname: $(hostname)"
   fi
-}
-
-function make_root_fs_readonly () {
-  copy_script setup/make_root_read_only.sh /tmp
-  /tmp/make_root_read_only.sh
 }
 
 function update_package_index () {
@@ -407,7 +402,6 @@ function get_usb_state {
 }
 
 function cmd_install {
-  /root/bin/remountfs_rw
   copy_script "$1" /root/bin
   setup_progress "$1 installed in /root/bin/"
   exit
@@ -424,8 +418,8 @@ function cmd_upgrade {
     echo "STOP: previous setup didn't finish, can't upgrade unfinished install"
     exit 1
   fi
-  copy_script setup/setup_raspdrive /tmp &> /dev/null
-  copy_script setup/envsetup.sh /tmp &> /dev/null
+  copy_script bin/setup_raspdrive /tmp &> /dev/null
+  copy_script boot/envsetup.sh /tmp &> /dev/null
   exec bash -c "/tmp/setup_raspdrive upgrade_prepare && NO_REBOOT_PROMPT=1 /tmp/setup_raspdrive && /tmp/setup_raspdrive upgrade_finish"
 }
 
@@ -506,7 +500,7 @@ configure_hostname
 
 tmpdir=/tmp/$$
 mkdir -p "$tmpdir"
-copy_script setup/setup_raspdrive "$tmpdir"  &> /dev/null
+copy_script bin/setup_raspdrive "$tmpdir"  &> /dev/null
 if cmp -s "$tmpdir/setup_raspdrive" "$0"
 then
   setup_progress "$0 is up to date"
@@ -514,7 +508,7 @@ else
   setup_progress "WARNING: $BRANCHNAME contains a different version of $0. It is recommended to run '$0 upgrade' to get the latest version."
 fi
 
-copy_script pi_build/00-raspdrive-tweaks/files/rc.local "$tmpdir" &> /dev/null
+copy_script rc.local "$tmpdir" &> /dev/null
 if cmp -s "$tmpdir/rc.local" /etc/rc.local
 then
   setup_progress "rc.local is up to date"
@@ -560,17 +554,17 @@ headless_setup_progress_flash 4
 if [ "$SAMBA_ENABLED" = "true" ]
 then
   export SAMBA_GUEST
-  copy_script setup/configure_samba.sh /tmp
+  copy_script apps/configure_samba.sh /tmp
   /tmp/configure_samba.sh
 fi
 
 if [ -n "${AP_SSID:+x}" ]
 then
-  copy_script setup/configure_ap.sh /tmp
+  copy_script apps/configure_ap.sh /tmp
   /tmp/configure_ap.sh
 fi
 
-copy_script setup/configure_ssh.sh /tmp
+copy_script apps/configure_ssh.sh /tmp
 /tmp/configure_ssh.sh
 
 setup_progress "Preparing USB"
@@ -589,7 +583,6 @@ then
   cat >> /root/.bashrc <<- EOC
 	cat << RASPDRIVE_TIP1
 	Run 'bin/setup_raspdrive upgrade' to update to the latest version of RASPDRIVE,
-	or run 'bin/remountfs_rw' to allow writing to the root partition.
 
 	RASPDRIVE_TIP1
 	EOC
@@ -608,8 +601,6 @@ then
 	EOC
   fi
 fi
-
-make_root_fs_readonly
 
 upgrade_packages
 

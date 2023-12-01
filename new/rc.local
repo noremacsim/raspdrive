@@ -90,48 +90,6 @@ function get_script () {
   chmod +x "$local_path/$name"
 }
 
-function enable_wifi () {
-  setup_progress "Detecting whether to update wpa_supplicant.conf"
-  if [[ -n "$SSID" ]] && [[ -n "$WIFIPASS" ]]
-  then
-    if [ ! -e /boot/WIFI_ENABLED ]
-    then
-      if [ -e /root/bin/remountfs_rw ]
-      then
-        /root/bin/remountfs_rw
-      fi
-      setup_progress "Wifi variables specified, and no /boot/WIFI_ENABLED. Building wpa_supplicant.conf."
-      cp /boot/wpa_supplicant.conf.sample /boot/wpa_supplicant.conf
-      sed -i -e "s|TEMPSSID|${SSID}|g" /boot/wpa_supplicant.conf
-      sed -i -e "s|TEMPPASS|${WIFIPASS}|g" /boot/wpa_supplicant.conf
-      cp /boot/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf
-
-      # set the host name now if possible, so it's effective immediately after the reboot
-      local old_host_name
-      old_host_name=$(cat /etc/hostname)
-      if [[ -n "$USB_HOSTNAME" ]] && [[ "$USB_HOSTNAME" != "$old_host_name" ]]
-      then
-        local new_host_name="$USB_HOSTNAME"
-        sed -i -e "s/$old_host_name/$new_host_name/g" /etc/hosts
-        sed -i -e "s/$old_host_name/$new_host_name/g" /etc/hostname
-      fi
-
-      dpkg-reconfigure -f noninteractive openssh-server
-      rfkill unblock wifi &> /dev/null || true
-      for i in /var/lib/systemd/rfkill/*:wlan ; do
-        echo 0 > "$i"
-      done
-      systemctl enable ssh
-
-      touch /boot/WIFI_ENABLED
-      setup_progress "Rebooting..."
-      exec reboot
-    fi
-  else
-    setup_progress "skipping wifi setup because variables not specified"
-  fi
-}
-
 function safesource {
   cat <<EOF > /tmp/checksetupconf
 #!/bin/bash -eu
@@ -151,13 +109,10 @@ EOF
 
 if [ -e "/boot/raspdrive_setup_variables.conf" ]
 then
-  if [ -e /root/bin/remountfs_rw ]
-  then
-    /root/bin/remountfs_rw
-  fi
   mv /boot/raspdrive_setup_variables.conf /root/
   dos2unix /root/raspdrive_setup_variables.conf
 fi
+
 if [ -e "/root/raspdrive_setup_variables.conf" ]
 then
   safesource /root/raspdrive_setup_variables.conf
@@ -168,18 +123,11 @@ else
   setup_progress "no config file found."
 fi
 
-# check if we previously marked wifi as enabled
-enable_wifi
 # Good to start setup at this point
-
 # This begins the Headless Setup loop
 # If the FINISHED file does not exist then we start setup. Otherwise passes on to normal loop
 if [ ! -e "/boot/RASPDRIVE_SETUP_FINISHED" ]
 then
-  if [ -e /root/bin/remountfs_rw ]
-  then
-    /root/bin/remountfs_rw
-  fi
   touch "/boot/RASPDRIVE_SETUP_STARTED"
 
   # Grab the setup variables. Should still be there since setup isn't finished.
@@ -209,7 +157,7 @@ then
     BRANCH=${BRANCH:-main}
     # Script doesn't exist, grab it.
     setup_progress "Grabbing main setup file."
-    if ! get_script /root/bin setup_raspdrive setup
+    if ! get_script /root/bin setup_raspdrive bin
     then
       setup_progress "Failed to retrieve setup script. Check network settings."
       error_strobe &
