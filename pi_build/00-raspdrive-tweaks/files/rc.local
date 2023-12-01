@@ -24,6 +24,7 @@ then
   chmod +x /tmp/run_once
   /tmp/run_once || echo "run_once failed"
   mv /boot/run_once /boot/ran_once || true
+  exec reboot
 fi
 
 SETUP_LOGFILE=/boot/raspdrive-headless-setup.log
@@ -52,9 +53,6 @@ function setup_progress () {
   echo "$( date ) : $1" >> "$SETUP_LOGFILE" || echo "can't write to $SETUP_LOGFILE"
   echo "$1"
 }
-
-setup_progress "Rebooting..."
-exec reboot
 
 function get_script () {
   local local_path="$1"
