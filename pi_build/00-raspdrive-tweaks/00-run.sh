@@ -1,10 +1,10 @@
 #!/bin/bash -e
-touch "${ROOTFS_DIR}/boot/ssh"
-install -m 666 files/userconf.txt                         "${ROOTFS_DIR}/boot/"
-install -m 755 files/rc.local                             "${ROOTFS_DIR}/etc/"
-install -m 666 files/raspdrive_setup_variables.conf.sample      "${ROOTFS_DIR}/boot/raspdrive_setup_variables.conf"
-install -m 666 files/wpa_supplicant.conf.sample           "${ROOTFS_DIR}/boot/"
-install -m 666 files/run_once                             "${ROOTFS_DIR}/boot/"
+touch "${ROOTFS_DIR}/boot/firmware/ssh"
+install -m 666 files/userconf.txt                          "${ROOTFS_DIR}/boot/firmware/"
+install -m 755 files/rc.local                              "${ROOTFS_DIR}/etc/"
+install -m 666 files/raspdrive_setup_variables.conf.sample "${ROOTFS_DIR}/boot/firmware/raspdrive_setup_variables.conf"
+install -m 666 files/wpa_supplicant.conf.sample            "${ROOTFS_DIR}/boot/firmware/"
+install -m 666 files/run_once                              "${ROOTFS_DIR}/boot/"
 install -d "${ROOTFS_DIR}/root/bin"
 
 # work around shortcoming in pi-gen that causes ca-certificates to be

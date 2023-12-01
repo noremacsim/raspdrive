@@ -26,7 +26,7 @@ then
   mv /boot/run_once /boot/ran_once || true
 fi
 
-SETUP_LOGFILE=/boot/usb-headless-setup.log
+SETUP_LOGFILE=/boot/raspdrive-headless-setup.log
 
 function write_all_leds {
   for led in /sys/class/leds/*
@@ -52,6 +52,9 @@ function setup_progress () {
   echo "$( date ) : $1" >> "$SETUP_LOGFILE" || echo "can't write to $SETUP_LOGFILE"
   echo "$1"
 }
+
+setup_progress "Rebooting..."
+exec reboot
 
 function get_script () {
   local local_path="$1"
@@ -87,8 +90,8 @@ function enable_wifi () {
       fi
       setup_progress "Wifi variables specified, and no /boot/WIFI_ENABLED. Building wpa_supplicant.conf."
       cp /boot/wpa_supplicant.conf.sample /boot/wpa_supplicant.conf
-      sed -i -e "sTEMPSSID${SSID}g" /boot/wpa_supplicant.conf
-      sed -i -e "sTEMPPASS${WIFIPASS}g" /boot/wpa_supplicant.conf
+      sed -i -e "s|TEMPSSID|${SSID}|g" /boot/wpa_supplicant.conf
+      sed -i -e "s|TEMPPASS|${WIFIPASS}|g" /boot/wpa_supplicant.conf
       cp /boot/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf
 
       # set the host name now if possible, so it's effective immediately after the reboot
@@ -134,19 +137,19 @@ EOF
   source "$1"
 }
 
-if [ -e "/boot/usb_setup_variables.conf" ]
+if [ -e "/boot/raspdrive_setup_variables.conf" ]
 then
   if [ -e /root/bin/remountfs_rw ]
   then
     /root/bin/remountfs_rw
   fi
-  mv /boot/usb_setup_variables.conf /root/
-  dos2unix /root/usb_setup_variables.conf
+  mv /boot/raspdrive_setup_variables.conf /root/
+  dos2unix /root/raspdrive_setup_variables.conf
 fi
-if [ -e "/root/usb_setup_variables.conf" ]
+if [ -e "/root/raspdrive_setup_variables.conf" ]
 then
-  safesource /root/usb_setup_variables.conf
-elif [ -e "/boot/usb_setup_variables.conf.sample" ]
+  safesource /root/raspdrive_setup_variables.conf
+elif [ -e "/boot/raspdrive_setup_variables.conf.sample" ]
 then
   setup_progress "no config file found, but sample file is present."
 else
