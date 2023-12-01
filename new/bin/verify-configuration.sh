@@ -66,12 +66,10 @@ function check_available_space () {
     if [ -z "$DATA_DRIVE" ]
     then
       setup_progress "DATA_DRIVE is not set. SD card will be used."
-      check_available_space_sd
     else
       if [ -e "$DATA_DRIVE" ]
       then
         setup_progress "DATA_DRIVE is set to $DATA_DRIVE. This will be used for the virtual usb."
-        check_available_space_usb
       else
         setup_progress "STOP: DATA_DRIVE is set to $DATA_DRIVE, which does not exist."
         exit 1
@@ -79,69 +77,6 @@ function check_available_space () {
     fi
 }
 
-function check_available_space_sd () {
-  setup_progress "Verifying that there is sufficient space available on the MicroSD card..."
-
-  # check if backingfiles and mutable already exist
-  if [ -e /dev/disk/by-label/backingfiles ] && [ -e /dev/disk/by-label/mutable ]
-  then
-    backingfiles_size=$(blockdev --getsize64 /dev/disk/by-label/backingfiles)
-    if [ "$backingfiles_size" -lt  $(( (1<<30) * 39)) ]
-    then
-      setup_progress "STOP: Existing backingfiles partition is too small"
-      exit 1
-    fi
-  else
-    # The following assumes that all the partitions are at the start
-    # of the disk, and that all the free space is at the end.
-
-    local available_space
-
-    # query unpartitioned space
-    available_space=$(sfdisk -F "$BOOT_DISK" | grep -o '[0-9]* bytes' | head -1 | awk '{print $1}')
-
-    # Require at least 40 GB of available space.
-    if [ "$available_space" -lt  $(( (1<<30) * 40)) ]
-    then
-      setup_progress "STOP: The MicroSD card is too small: $available_space bytes available."
-      setup_progress "$(parted "${BOOT_DISK}" print)"
-      exit 1
-    fi
-  fi
-
-  setup_progress "There is sufficient space available."
-}
-
-function check_available_space_usb () {
-  setup_progress "Verifying that there is sufficient space available on the USB drive ..."
-
-  # Verify that the disk has been provided and not a partition
-  local drive_type
-  drive_type=$(lsblk -pno TYPE "$DATA_DRIVE" | head -n 1)
-
-  if [ "$drive_type" != "disk" ]
-  then
-    setup_progress "STOP: The specified drive ($DATA_DRIVE) is not a disk (TYPE=$drive_type). Please specify path to the disk."
-    exit 1
-  fi
-
-  # This verifies only the total size of the USB Drive.
-  # All existing partitions on the drive will be erased if backingfiles are to be created or changed.
-  # EXISTING DATA ON THE DATA_DRIVE WILL BE REMOVED.
-
-  local drive_size
-  drive_size=$(blockdev --getsize64 "$DATA_DRIVE")
-
-  # Require at least 64GB drive size, or 59 GiB.
-  if [ "$drive_size" -lt  $(( (1<<30) * 59)) ]
-  then
-    setup_progress "STOP: The USB drive is too small: $(( drive_size / 1024 / 1024 / 1024 ))GB available. Expected at least 64GB"
-    setup_progress "$(parted "$DATA_DRIVE" print)"
-    exit 1
-  fi
-
-  setup_progress "There is sufficient space available."
-}
 
 function check_setup_raspdrive () {
   if [ ! -e /root/bin/setup_raspdrive ]
