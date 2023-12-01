@@ -66,40 +66,5 @@ then
   apt install -y sntp
 fi
 
-# indicate we're waiting for the user to log in and finish setup
 flash_rapidly
-
-# If there is a user with id 1000, assume it is the default user
-# the user will be logging in as.
-DEFUSER=$(grep ":1000:1000:" /etc/passwd | awk -F : '{print $1}')
-if [ -n "$DEFUSER" ]
-then
-  if [ ! -e "/home/$DEFUSER/.bashrc" ] || ! grep "SETUP_FINISHED" "/home/$DEFUSER/.bashrc"
-  then
-    cat <<- EOF >> "/home/$DEFUSER/.bashrc"
-		if [ ! -e /boot/RASPDRIVE_SETUP_FINISHED ]
-		then
-		  echo "+-------------------------------------------+"
-		  echo "| To continue raspdrive setup, run 'sudo -i' |"
-		  echo "+-------------------------------------------+"
-		fi
-	EOF
-    chown "$DEFUSER:$DEFUSER" "/home/$DEFUSER/.bashrc"
-  fi
-fi
-
-if ! grep "SETUP_FINISHED" /root/.bashrc
-then
-  cat <<- EOF >> /root/.bashrc
-	if [ ! -e /boot/RASPDRIVE_SETUP_FINISHED ]
-	then
-	  echo "+------------------------------------------------------------------------+"
-	  echo "| To continue raspdrive setup                                             |"
-	  echo "|                                                                         |"
-	  echo "| When done, save changes and run /etc/rc.local                           |"
-	  echo "+------------------------------------------------------------------------+"
-	fi
-	EOF
-fi
-
 /etc/rc.local
