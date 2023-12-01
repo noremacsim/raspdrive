@@ -70,7 +70,7 @@ function check_available_space () {
     else
       if [ -e "$DATA_DRIVE" ]
       then
-        setup_progress "DATA_DRIVE is set to $DATA_DRIVE. This will be used for /mutable and /backingfiles."
+        setup_progress "DATA_DRIVE is set to $DATA_DRIVE. This will be used for the virtual usb."
         check_available_space_usb
       else
         setup_progress "STOP: DATA_DRIVE is set to $DATA_DRIVE, which does not exist."

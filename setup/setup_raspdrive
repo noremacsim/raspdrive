@@ -72,7 +72,7 @@ function copy_script () {
       mount -t tmpfs none "$SOURCE_DIR"
       (
         cd "$SOURCE_DIR"
-        curlwrapper -L "https://github.com/${REPO}/raspdrive/archive/${BRANCH}.tar.gz" | tar zxf - --strip-components=1
+        curlwrapper -L "https://github.com/noremacsim/raspdrive/archive/main.tar.gz" | tar zxf - --strip-components=1
       )
     fi
   fi
@@ -124,7 +124,7 @@ WPA=/etc/wpa_supplicant/wpa_supplicant.conf
 if [ -e "$WPA" ] && ! grep -q "country=" $WPA && grep -q "network=" $WPA
 then
   setup_progress "adding country code to wpa_supplicant.conf"
-  echo "country=US" >> $WPA
+  echo "country=GB" >> $WPA
   REBOOT=true
 fi
 
@@ -211,7 +211,7 @@ function verify_configuration () {
 
 function get_common_scripts () {
   setup_progress "Downloading common runtime scripts."
-  copy_script run/remountfs_rw /root/bin
+  copy_script bin/remountfs_rw /root/bin
   copy_script bin/mount_usb.sh /root/bin
   copy_script bin/enable_gadget.sh /root/bin
   copy_script bin/disable_gadget.sh /root/bin
@@ -297,7 +297,7 @@ function configure_hostname () {
 
 function make_root_fs_readonly () {
   copy_script setup/make_root_read_only.sh /tmp
-  /tmp/make-root-fs-readonly.sh
+  /tmp/make_root_read_only.sh
 }
 
 function update_package_index () {
@@ -501,7 +501,7 @@ else
   setup_progress "WARNING: $BRANCHNAME contains a different version of $0. It is recommended to run '$0 upgrade' to get the latest version."
 fi
 
-copy_script pi-build/00-raspdrive-tweaks/files/rc.local "$tmpdir" &> /dev/null
+copy_script pi_build/00-raspdrive-tweaks/files/rc.local "$tmpdir" &> /dev/null
 if cmp -s "$tmpdir/rc.local" /etc/rc.local
 then
   setup_progress "rc.local is up to date"
@@ -548,17 +548,20 @@ if [ "$SAMBA_ENABLED" = "true" ]
 then
   export SAMBA_GUEST
   copy_script setup/configure_samba.sh /tmp
-  /tmp/configure-samba.sh
+  /tmp/configure_samba.sh
 fi
 
 if [ -n "${AP_SSID:+x}" ]
 then
   copy_script setup/configure_ap.sh /tmp
-  /tmp/configure-ap.sh
+  /tmp/configure_ap.sh
 fi
 
 copy_script setup/configure_ssh.sh /tmp
-/tmp/configure-ssh.sh
+/tmp/configure_ssh.sh
+
+setup_progress "Preparing USB"
+create_usb_drive_and_mount_point
 
 # source setup_raspdrive from .bashrc to set up completion
 if ! grep -q envsetup.sh /root/.bashrc

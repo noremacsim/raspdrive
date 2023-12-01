@@ -58,44 +58,8 @@ append_cmdline_txt_param fsck.mode=auto
 append_cmdline_txt_param noswap
 append_cmdline_txt_param ro
 
-# set root and mutable max mount count to 1, so they're checked every boot
-tune2fs -c 1 "$ROOT_PARTITION_DEVICE" || log_progress "tune2fs failed for rootfs"
-tune2fs -c 1 /dev/disk/by-label/mutable || log_progress "tune2fs failed for mutable"
-
 # we're not using swap, so delete the swap file for some extra space
 rm -f /var/swap
-
-# Move fake-hwclock.data to /mutable directory so it can be updated
-if ! findmnt --mountpoint /mutable > /dev/null
-then
-  log_progress "Mounting the mutable partition..."
-  mount /mutable
-  log_progress "Mounted."
-fi
-if [ ! -e "/mutable/etc" ]
-then
-  mkdir -p /mutable/etc
-fi
-
-if [ ! -L "/etc/fake-hwclock.data" ] && [ -e "/etc/fake-hwclock.data" ]
-then
-  log_progress "Moving fake-hwclock data"
-  mv /etc/fake-hwclock.data /mutable/etc/fake-hwclock.data
-  ln -s /mutable/etc/fake-hwclock.data /etc/fake-hwclock.data
-fi
-# By default fake-hwclock is run during early boot, before /mutable
-# has been mounted and so will fail. Delay running it until /mutable
-# has been mounted.
-if [ -e /lib/systemd/system/fake-hwclock.service ]
-then
-  sed -i 's/Before=.*/After=mutable.mount/' /lib/systemd/system/fake-hwclock.service
-fi
-
-# Create a configs directory for others to use
-if [ ! -e "/mutable/configs" ]
-then
-  mkdir -p /mutable/configs
-fi
 
 # Move /var/spool to /tmp
 if [ -L /var/spool ]
@@ -111,17 +75,6 @@ fi
 
 # Change spool permissions in var.conf (rondie/Margaret fix)
 sed -i "s/spool\s*0755/spool 1777/g" /usr/lib/tmpfiles.d/var.conf >/dev/null
-
-# Move resolv.conf to /mutable if it is not located on a tmpfs.
-# This used to move it to /tmp, but some resolvers apparently don't rewrite
-# /etc/resolv.conf when it's missing, so store it on /mutable to provide
-# persistence while still being mutable.
-read -r resolvconflocation <<< "$(df --output=fstype "$(readlink -f /etc/resolv.conf)" | tail -1)"
-if [ "$resolvconflocation" != "tmpfs" ] && [ ! -e /mutable/resolv.conf ]
-then
-  mv "$(readlink -f /etc/resolv.conf)" /mutable/resolv.conf
-  ln -sf /mutable/resolv.conf /etc/resolv.conf
-fi
 
 # Update /etc/fstab
 # make /boot read-only

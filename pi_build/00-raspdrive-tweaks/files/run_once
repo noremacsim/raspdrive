@@ -8,8 +8,3 @@
 # the next boot, for example by renaming or deleting it.
 
 mv /boot/firmware/raspdrive_setup_variables.conf /boot/
-mv /boot/firmware/hosts /boot/
-mv /boot/firmware/ssh /boot/
-mv /boot/firmware/userconf.txt /boot/
-mv /boot/firmware/wpa_supplicant.conf.sample /boot/
-
