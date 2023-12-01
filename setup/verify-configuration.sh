@@ -27,7 +27,7 @@ function check_supported_hardware () {
     return
   fi
   setup_progress "STOP: unsupported hardware: '$(cat /sys/firmware/devicetree/base/model)'"
-  setup_progress "(only Pi Zero W and Pi 4 have the necessary hardware to run teslausb)"
+  setup_progress "(only Pi Zero W and Pi 4 have the necessary hardware to run RaspDrive)"
   exit 1
 }
 
@@ -143,18 +143,18 @@ function check_available_space_usb () {
   setup_progress "There is sufficient space available."
 }
 
-function check_setup_usb () {
-  if [ ! -e /root/bin/setup-usb ]
+function check_setup_raspdrive () {
+  if [ ! -e /root/bin/setup_raspdrive ]
   then
-    setup_progress "STOP: setup-teslausb is not in /root/bin"
+    setup_progress "STOP: setup_raspdrive is not in /root/bin"
     exit 1
   fi
 
   local parent
   parent="$(ps -o comm= $PPID)"
-  if [ "$parent" != "setup-teslausb" ]
+  if [ "$parent" != "setup_raspdrive" ]
   then
-    setup_progress "STOP: $0 must be called from setup-teslausb: $parent"
+    setup_progress "STOP: $0 must be called from setup_raspdrive: $parent"
     exit 1
   fi
 }
@@ -165,6 +165,6 @@ check_udc
 
 check_xfs
 
-check_setup_teslausb
+check_setup_raspdrive
 
 check_available_space

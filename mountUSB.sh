@@ -7,7 +7,7 @@ then
   echo "error: configfs not found"
   exit 1
 fi
-readonly gadget_root="$configfs_root/usb_gadget/teslausb"
+readonly gadget_root="$configfs_root/usb_gadget/RaspDrive"
 
 # USB supports many languages. 0x409 is US English
 readonly lang=0x409
@@ -33,10 +33,10 @@ echo 0x0100 > "$gadget_root/bcdDevice" # v1.0.0
 echo 0x0200 > "$gadget_root/bcdUSB"    # USB 2.0
 mkdir -p "$gadget_root/strings/$lang"
 mkdir -p "$gadget_root/configs/$cfg.1/strings/$lang"
-echo "TeslaUSB-$(grep Serial /proc/cpuinfo | awk '{print $3}')" > "$gadget_root/strings/$lang/serialnumber"
-echo TeslaUSB > "$gadget_root/strings/$lang/manufacturer"
-echo "TeslaUSB Composite Gadget" > "$gadget_root/strings/$lang/product"
-echo "TeslaUSB Config" > "$gadget_root/configs/$cfg.1/strings/$lang/configuration"
+echo "RaspDrive-$(grep Serial /proc/cpuinfo | awk '{print $3}')" > "$gadget_root/strings/$lang/serialnumber"
+echo RaspDrive > "$gadget_root/strings/$lang/manufacturer"
+echo "RaspDrive Composite Gadget" > "$gadget_root/strings/$lang/product"
+echo "RaspDrive Config" > "$gadget_root/configs/$cfg.1/strings/$lang/configuration"
 
 if isPi4
 then
@@ -51,7 +51,7 @@ fi
 # mass storage setup
 mkdir -p "$gadget_root/functions/mass_storage.0"
 echo "/mnt/connectedUSB/usbdata.bin" > "$gadget_root/functions/mass_storage.0/lun.0/file"
-echo "TeslaUSB CAM $(du -h /mnt/connectedUSB/usbdata.bin | awk '{print $1}')" > "$gadget_root/functions/mass_storage.0/lun.0/inquiry_string"
+echo "RaspDrive CAM $(du -h /mnt/connectedUSB/usbdata.bin | awk '{print $1}')" > "$gadget_root/functions/mass_storage.0/lun.0/inquiry_string"
 
 
 ln -sf "$gadget_root/functions/mass_storage.0" "$gadget_root/configs/$cfg.1"

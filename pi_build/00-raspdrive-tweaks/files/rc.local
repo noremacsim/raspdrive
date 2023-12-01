@@ -60,7 +60,7 @@ function get_script () {
 
   IFS=". " read -r start_time _ < /proc/uptime
 
-  while ! curl -o "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/tesusb/"$BRANCH"/"$remote_path"/"$name"
+  while ! curl -o "$local_path/$name" https://raw.githubusercontent.com/"$REPO"/raspdrive/"$BRANCH"/"$remote_path"/"$name"
   do
     setup_progress "get_script failed, retrying"
     sntp -S time.google.com || true
@@ -159,27 +159,27 @@ enable_wifi
 
 # This begins the Headless Setup loop
 # If the FINISHED file does not exist then we start setup. Otherwise passes on to normal loop
-if [ ! -e "/boot/USB_SETUP_FINISHED" ]
+if [ ! -e "/boot/RASPDRIVE_SETUP_FINISHED" ]
 then
   if [ -e /root/bin/remountfs_rw ]
   then
     /root/bin/remountfs_rw
   fi
-  touch "/boot/USB_SETUP_STARTED"
+  touch "/boot/RASPDRIVE_SETUP_STARTED"
 
   # Grab the setup variables. Should still be there since setup isn't finished.
   # This is a double check to cover various scenarios of mixed headless/not headless setup attempts
-  if [ -e "/boot/usb_setup_variables.conf" ] && [ ! -e  "/root/usb_setup_variables.conf" ]
+  if [ -e "/boot/raspdrive_setup_variables.conf" ] && [ ! -e  "/root/raspdrive_setup_variables.conf" ]
   then
-    mv /boot/usb_setup_variables.conf /root/
-    dos2unix /root/usb_setup_variables.conf
+    mv /boot/raspdrive_setup_variables.conf /root/
+    dos2unix /root/raspdrive_setup_variables.conf
   fi
-  if [ -e "/root/usb_setup_variables.conf" ]
+  if [ -e "/root/raspdrive_setup_variables.conf" ]
   then
-    source "/root/usb_setup_variables.conf"
+    source "/root/raspdrive_setup_variables.conf"
   else
     # No conf file found, can't complete setup
-    setup_progress "Setup appears not to have completed, but you didn't provide a usb_setup_variables.conf."
+    setup_progress "Setup appears not to have completed, but you didn't provide a raspdrive_setup_variables.conf."
   fi
 
   # Make the bin dir if needed to grab the setup script into it and persist
@@ -188,13 +188,13 @@ then
     mkdir "/root/bin"
   fi
 
-  if [ ! -e "/root/bin/setup-usb" ]
+  if [ ! -e "/root/bin/setup_raspdrive" ]
   then
     REPO=${REPO:-noremacsim}
     BRANCH=${BRANCH:-main}
     # Script doesn't exist, grab it.
     setup_progress "Grabbing main setup file."
-    if ! get_script /root/bin setup-usb setup
+    if ! get_script /root/bin setup_raspdrive setup
     then
       setup_progress "Failed to retrieve setup script. Check network settings."
       error_strobe &
@@ -205,7 +205,7 @@ then
   setup_progress "Starting setup."
 
   # Start setup. This should take us all the way through to reboot
-  if ! /root/bin/setup-usb
+  if ! /root/bin/setup_raspdrive
   then
     error_strobe &
     exit 0

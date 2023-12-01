@@ -28,7 +28,7 @@ then
 fi
 
 function setup_progress () {
-  local setup_logfile=/boot/usb-headless-setup.log
+  local setup_logfile=/boot/raspdrive-headless-setup.log
   if [ -w $setup_logfile ]
   then
     echo "$( date ) : $*" >> "$setup_logfile"
@@ -72,7 +72,7 @@ function copy_script () {
       mount -t tmpfs none "$SOURCE_DIR"
       (
         cd "$SOURCE_DIR"
-        curlwrapper -L "https://github.com/${REPO}/tesusb/archive/${BRANCH}.tar.gz" | tar zxf - --strip-components=1
+        curlwrapper -L "https://github.com/${REPO}/raspdrive/archive/${BRANCH}.tar.gz" | tar zxf - --strip-components=1
       )
     fi
   fi
@@ -103,7 +103,7 @@ if [ ! -e "$THISDIR/envsetup.sh" ]
 then
   # source the conf file directly to get REPO, BRANCH or download_sources
   # in case they're set
-  safesource /root/usb_setup_variables.conf
+  safesource /root/raspdrive_setup_variables.conf
   REPO=${REPO:-noremacsim}
   BRANCH=${BRANCH:-main}
   copy_script setup/envsetup.sh "$THISDIR"
@@ -171,9 +171,9 @@ then
 fi
 
 function headless_setup_mark_setup_success () {
-  rm -f /boot/USB_SETUP_FAILED
-  rm -f /boot/USB_SETUP_STARTED
-  touch /boot/USB_SETUP_FINISHED
+  rm -f /boot/RASPDRIVE_SETUP_FAILED
+  rm -f /boot/RASPDRIVE_SETUP_STARTED
+  touch /boot/RASPDRIVE_SETUP_FINISHED
 }
 
 function flash () {
@@ -406,14 +406,14 @@ function cmd_selfupdate {
 }
 
 function cmd_upgrade {
-  if [ ! -e /boot/USB_SETUP_FINISHED ]
+  if [ ! -e /boot/RASPDRIVE_SETUP_FINISHED ]
   then
     echo "STOP: previous setup didn't finish, can't upgrade unfinished install"
     exit 1
   fi
-  copy_script setup/setup-usb /tmp &> /dev/null
+  copy_script setup/setup_raspdrive /tmp &> /dev/null
   copy_script setup/envsetup.sh /tmp &> /dev/null
-  exec bash -c "/tmp/setup-usb upgrade_prepare && NO_REBOOT_PROMPT=1 /tmp/setup-usb && /tmp/setup-usb upgrade_finish"
+  exec bash -c "/tmp/setup_raspdrive upgrade_prepare && NO_REBOOT_PROMPT=1 /tmp/setup_raspdrive && /tmp/setup_raspdrive upgrade_finish"
 }
 
 function cmd_upgrade_prepare {
@@ -428,7 +428,7 @@ function cmd_upgrade_prepare {
 }
 
 function cmd_upgrade_finish {
-  mv /tmp/setup-usb /root/bin/setup-usb
+  mv /tmp/setup_raspdrive /root/bin/setup_raspdrive
   mv /tmp/envsetup.sh /root/bin/envsetup.sh
   setup_progress "upgrade finished"
   for i in {5..1}
@@ -451,244 +451,6 @@ function checkfsrw() {
 
 function boot_is_not_on_root {
   [ "$(stat -c "%d" /)" -ne "$(stat -c "%d" /boot)" ]
-}
-
-function diagnose {
-  local hardware
-  local os
-
-  hardware=$( tr -d '\000' < /sys/firmware/devicetree/base/model )
-  os=$(. /etc/os-release && echo "$PRETTY_NAME")
-  {
-    echo -e "====== summary ======"
-    echo -e "hardware: ${hardware}"
-    echo -e "OS: ${os}"
-    if [ "${ARCHIVE_SYSTEM:-unset}" = "unset" ]
-    then
-      echo "ERROR: no archive method specified!"
-    elif [ "${ARCHIVE_SYSTEM:-none}" = "cifs" ]
-    then
-      if grep -q '/mnt/archive' /etc/fstab
-      then
-        echo "CIFS archiving selected"
-      else
-        echo "ERROR: CIFS archiving selected, but archive not defined in fstab"
-      fi
-    elif [ "${ARCHIVE_SYSTEM:-none}" = "rclone" ]
-    then
-      if [ ! -e "/root/.config/rclone/rclone.conf" ]
-      then
-        echo "ERROR: rclone archiving selected, but rclone config does not exist"
-      elif [ ! -L "/root/.config/rclone" ]
-      then
-        echo "ERROR: rclone archiving selected, but rclone config is in /root"
-      else
-        echo "rclone archiving selected"
-      fi
-    else
-      echo "archive method: ${ARCHIVE_SYSTEM:-unset}"
-    fi
-
-    if [[ "$DATA_DRIVE" != "" ]] && isPi4
-    then
-      echo "DATA_DRIVE=$DATA_DRIVE: consider booting from USB instead."
-    fi
-
-    if ! blkid -L backingfiles > /dev/null
-    then
-      echo "ERROR: backingfiles partition does not exist"
-    fi
-    if [ ! -d /backingfiles ]
-    then
-      echo "backingfiles directory does not exist"
-    fi
-    if ! grep -q '/backingfiles' /etc/fstab
-    then
-      echo "ERROR: backingfiles not in fstab"
-    fi
-
-    if [ ! -f /backingfiles/cam_disk.bin ]
-    then
-      echo "ERROR: cam disk image does not exist"
-    fi
-    if ! grep -q '/backingfiles/cam_disk.bin' /etc/fstab
-    then
-      echo "ERROR: cam disk image not in fstab"
-    fi
-    LUN0=/sys/kernel/config/usb_gadget/teslausb/functions/mass_storage.0/lun.0/file
-    if [ -e "$LUN0" ]
-    then
-      echo "lun0 connected, from file $(cat "$LUN0")"
-    fi
-    LUN1=/sys/kernel/config/usb_gadget/teslausb/functions/mass_storage.0/lun.1/file
-    if [ -e "$LUN1" ]
-    then
-      echo "lun1 connected, from file $(cat "$LUN1")"
-    fi
-    if ! blkid -L mutable > /dev/null
-    then
-      echo "ERROR: mutable partition does not exist"
-    fi
-    if [ ! -d /mutable ]
-    then
-      echo "ERROR: mutable directory does not exist"
-    fi
-    if ! grep -q '/mutable' /etc/fstab
-    then
-      echo "ERROR: mutable not in fstab"
-    fi
-
-    if [ -n "${SNAPSHOT_INTERVAL:+x}" ]
-    then
-      echo "Snapshot interval: $SNAPSHOT_INTERVAL"
-    fi
-
-    numsnapshots=$( mount | grep -c snapshot )
-    echo "$numsnapshots snapshots mounted"
-
-    if [ ! -e /boot/TESLAUSB_SETUP_FINISHED ]
-    then
-      echo 'ERROR: setup did not finish'
-    fi
-
-    get_usb_state
-
-    local -r archiveloopcount=$(pgrep -f archiveloop | wc -l)
-    if ((archiveloopcount <= 2))
-    then
-      echo "archiveloop is not running"
-      journalctl -u teslausb | tail -30
-    fi
-
-    local -r inodes=$(df --output=ipcent /mutable/ | sed 1d | sed 's/[^0-9]//g')
-    if [[ "$inodes" -gt 80 ]]
-    then
-      echo "WARNING: /mutable is low on inodes: ${inodes}% used"
-    fi
-
-    if [[ "$BRANCH" != "main-dev" || "$REPO" != "marcone" ]]
-    then
-      echo "WARNING: using $REPO/$BRANCH"
-    fi
-
-    if [ -x /root/bin/archive-filter ]
-    then
-      echo "Custom archive filter is in use"
-    fi
-
-    read -r offset <<<"$(sfdisk -l -q -o START /backingfiles/cam_disk.bin | tail -1)"
-    fstype=$(blkid --probe -o value -s TYPE --offset $((offset*512)) /backingfiles/cam_disk.bin)
-    if [ "$fstype" = "exfat" ]
-    then
-      echo "CAM drive is formatted as ExFAT. Recommend using FAT32 instead."
-    fi
-    checkfsrw / ro
-    if boot_is_not_on_root
-    then
-      checkfsrw /boot ro
-    fi
-    checkfsrw /backingfiles rw
-    checkfsrw /mutable rw
-
-    echo -e "====== disk / images ======"
-    parted -s "${BOOT_DISK}" print || true
-    if [ -n "${DATA_DRIVE:+x}" ]
-    then
-      parted -s "$DATA_DRIVE" print || true
-    fi
-    if [ -f /backingfiles/cam_disk.bin ]
-    then
-      echo "cam disk image has $(filefrag /backingfiles/cam_disk.bin | awk '{print $2}') extents"
-      parted -s /backingfiles/cam_disk.bin print || true
-    else
-      echo "no cam disk image found"
-    fi
-    if [ -f /backingfiles/music_disk.bin ]
-    then
-      echo "music disk image has $(filefrag /backingfiles/music_disk.bin | awk '{print $2}') extents"
-      parted -s /backingfiles/music_disk.bin print || true
-    else
-      echo "no music disk image found"
-    fi
-    if [ -f /backingfiles/boombox_disk.bin ]
-    then
-      echo "boombox disk image has $(filefrag /backingfiles/boombox_disk.bin | awk '{print $2}') extents"
-      parted -s /backingfiles/boombox_disk.bin print || true
-    else
-      echo "no boombox disk image found"
-    fi
-    df -h /boot/ / /backingfiles/ /mutable/
-    echo -e "====== network ======"
-    ifconfig
-    iwconfig wlan0 | grep Link
-
-    echo -e "====== fstab ======"
-    if [ -e /etc/fstab ]
-    then
-      cat /etc/fstab
-    else
-      echo "no fstab found"
-    fi
-
-    echo -e "====== initial setup boot log ======"
-    mkdir /tmp/root$$
-    mount --bind / /tmp/root$$
-    if [ -e /tmp/root$$/var/log/boot.log ]
-    then
-      cat /tmp/root$$/var/log/boot.log
-    else
-      echo "no boot log found"
-    fi
-    umount /tmp/root$$
-    rmdir /tmp/root$$
-
-    echo -e "====== rc.local log ======"
-    journalctl -u rc-local
-
-    echo -e "====== setup log ======"
-    if [ -e /boot/teslausb-headless-setup.log ]
-    then
-      cat /boot/teslausb-headless-setup.log
-    else
-      echo "no setup log found"
-    fi
-
-    echo -e "====== archiveloop log ======"
-    if [ -e /mutable/archiveloop.log ]
-    then
-      cat /mutable/archiveloop.log
-    else
-      echo "no archiveloop log found"
-    fi
-
-    echo -e "====== system log ======"
-    if [ -x /bin/logread ]
-    then
-      /bin/logread
-    else
-      echo "logread not installed"
-    fi
-
-    echo -e "====== dmesg ======"
-    dmesg -T
-    echo -e "====== process list and uptime ======"
-    ps -eaf
-    echo "$(hostname) has been $(uptime -p). System time is $(date)"
-    echo -e "====== end of diagnostics ======"
-  }
-}
-
-function cmd_diagnose {
-  { diagnose || true; } |&
-    # clean up the output a bit
-    tr '\r' '\n' |
-    sed '/^ *$/d' |
-    grep -a -v '^Reading package lists' |
-    grep -a -v '^(Reading database' |
-    grep -a -v "^Adding 'diversion of" |
-    grep -a -v "^Removing 'diversion of" |
-    sed -E 's/\o033\[0;32m//' |
-    sed -E 's/\o033\[0m//'
 }
 
 export -f setup_progress
@@ -731,15 +493,15 @@ configure_hostname
 
 tmpdir=/tmp/$$
 mkdir -p "$tmpdir"
-copy_script setup/setup-usb "$tmpdir"  &> /dev/null
-if cmp -s "$tmpdir/setup-usb" "$0"
+copy_script setup/setup_raspdrive "$tmpdir"  &> /dev/null
+if cmp -s "$tmpdir/setup_raspdrive" "$0"
 then
   setup_progress "$0 is up to date"
 else
   setup_progress "WARNING: $BRANCHNAME contains a different version of $0. It is recommended to run '$0 upgrade' to get the latest version."
 fi
 
-copy_script pi-gen-sources/00-teslausb-tweaks/files/rc.local "$tmpdir" &> /dev/null
+copy_script pi-build/00-raspdrive-tweaks/files/rc.local "$tmpdir" &> /dev/null
 if cmp -s "$tmpdir/rc.local" /etc/rc.local
 then
   setup_progress "rc.local is up to date"
@@ -782,8 +544,6 @@ fix_cmdline_txt_modules_load
 # Flash for stage 4 headless (Create backing files)
 headless_setup_progress_flash 4
 
-create_usb_drive_backing_files
-
 if [ "$SAMBA_ENABLED" = "true" ]
 then
   export SAMBA_GUEST
@@ -800,35 +560,35 @@ fi
 copy_script setup/configure_ssh.sh /tmp
 /tmp/configure-ssh.sh
 
-# source setup-usb from .bashrc to set up completion
+# source setup_raspdrive from .bashrc to set up completion
 if ! grep -q envsetup.sh /root/.bashrc
 then
   echo "source /root/bin/envsetup.sh" >> /root/.bashrc
 fi
-sed -i '/source \/root\/bin\/setup-usb/d' /root/.bashrc
+sed -i '/source \/root\/bin\/setup_raspdrive/d' /root/.bashrc
 
 # UX courtesy reminders
-if ! grep -q USB_TIP1 /root/.bashrc
+if ! grep -q RASPDRIVE_TIP1 /root/.bashrc
 then
   cat >> /root/.bashrc <<- EOC
-	cat << USB_TIP1
-	Run 'bin/setup-usb upgrade' to update to the latest version of usb,
+	cat << RASPDRIVE_TIP1
+	Run 'bin/setup_raspdrive upgrade' to update to the latest version of RASPDRIVE,
 	or run 'bin/remountfs_rw' to allow writing to the root partition.
 
-	USB_TIP1
+	RASPDRIVE_TIP1
 	EOC
 fi
 
 DEFUSER=$(grep ":1000:1000:" /etc/passwd | awk -F : '{print $1}')
 if [ -n "$DEFUSER" ]
 then
-  if ! grep -q USB_TIP1 "/home/$DEFUSER/.bashrc"
+  if ! grep -q RASPDRIVE_TIP1 "/home/$DEFUSER/.bashrc"
   then
     cat >> "/home/$DEFUSER/.bashrc" <<- EOC
-	cat << USB_TIP1
+	cat << RASPDRIVE_TIP1
 	Run 'sudo -i' if you need to make changes.
 
-	USB_TIP1
+	RASPDRIVE_TIP1
 	EOC
   fi
 fi

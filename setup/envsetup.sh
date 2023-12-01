@@ -31,7 +31,7 @@ EOF
 function read_setup_variables {
   if [ -z "${setup_file+x}" ]
   then
-    local -r setup_file=/root/usb_setup_variables.conf
+    local -r setup_file=/root/raspdrive_setup_variables.conf
   fi
   if [ -e $setup_file ]
   then
@@ -88,7 +88,7 @@ then
     function log { echo "$@"; }
     export -f log
   fi
-  complete -W "diagnose upgrade install" setup-usb
+  complete -W "diagnose upgrade install" setup_raspdrive
 fi
 
 function isRaspberryPi {

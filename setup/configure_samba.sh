@@ -69,7 +69,7 @@ cat <<- EOF > /etc/samba/smb.conf
            unix extensions = no
            wide links = yes
 
-	[TeslaCam]
+	[RaspDrive]
 	   read only = yes
 	   locking = no
 	   path = /mnt/usbdata

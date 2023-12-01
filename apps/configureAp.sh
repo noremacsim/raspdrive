@@ -1,7 +1,7 @@
 #!/bin/bash -eu
 
 # based on https://blog.thewalr.us/2017/09/26/raspberry-pi-zero-w-simultaneous-ap-and-managed-mode-wifi/
-AP_SSID='TaslaCam'
+AP_SSID='RaspDrive'
 AP_PASS='YoungPadawan3205'
 
 function log_progress () {
