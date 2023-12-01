@@ -94,14 +94,12 @@ then
 	if [ ! -e /boot/RASPDRIVE_SETUP_FINISHED ]
 	then
 	  echo "+------------------------------------------------------------------------+"
-	  echo "| To continue raspdrive setup, edit the file                              |"
-	  echo "| /boot/raspdrive_setup_variables.conf with your favorite                 |"
-	  echo "| editor, e.g. 'nano /boot/raspdrive_setup_variables.conf' and fill in    |"
-	  echo "| the required variables. Instructions are in the file, and at            |"
-	  echo "| https://github.com/noremacsim/raspdrive/blob/main/doc/dochere.md        |"
+	  echo "| To continue raspdrive setup                                             |"
 	  echo "|                                                                         |"
 	  echo "| When done, save changes and run /etc/rc.local                           |"
 	  echo "+------------------------------------------------------------------------+"
 	fi
 	EOF
 fi
+
+/etc/rc.local
