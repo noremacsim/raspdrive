@@ -38,7 +38,6 @@ then
   chmod +x /tmp/run_once
   /tmp/run_once || echo "run_once failed"
   mv /boot/run_once /boot/ran_once || true
-  exec reboot
 fi
 
 SETUP_LOGFILE=/boot/raspdrive-headless-setup.log
