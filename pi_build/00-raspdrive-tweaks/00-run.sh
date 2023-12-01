@@ -24,7 +24,12 @@ EOF
 # disable various interactive setup dialogs
 on_chroot << EOF
 systemctl disable keyboard-setup
-systemctl disable userconfig
+if systemctl list-units --all | grep -q "userconfig"; then
+    systemctl disable userconfig
+    echo "Unit userconfig disabled."
+else
+    echo "Unit userconfig does not exist."
+fi
 EOF
 
 
