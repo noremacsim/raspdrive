@@ -4,6 +4,9 @@ import os
 from watchdog.observers import Observer
 from watchdog.events import *
 
+os.system("sh /root/bin/disable_gadget.sh")
+os.system("sh /root/bin/enable_gadget.sh")
+
 CMD_MOUNT = "sh /root/bin/enable_gadget.sh"
 CMD_UNMOUNT = "sh /root/bin/disable_gadget.sh"
 CMD_SYNC = "sync"

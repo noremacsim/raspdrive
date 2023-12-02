@@ -177,6 +177,12 @@ then
   exec reboot
 fi
 
+if [ -e /boot/RASPDRIVE_SETUP_FINISHED ]
+then
+    /root/bin/mount_usb.sh
+    python3 /root/bin/usb_service.py
+fi
+
 # we're done. If setup completed successfully, usb will have been
 # started as a systemd service at this point
 

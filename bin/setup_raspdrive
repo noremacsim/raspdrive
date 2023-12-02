@@ -216,16 +216,19 @@ function get_common_scripts () {
   copy_script bin/mount_usb.sh /root/bin
   copy_script bin/enable_gadget.sh /root/bin
   copy_script bin/disable_gadget.sh /root/bin
+  copy_script bin/usb_service.py /root/bin
 
   dos2unix /root/bin/disable_gadget.sh
   dos2unix /root/bin/enable_gadget.sh
   dos2unix /root/bin/mount_usb.sh
   dos2unix /root/bin/remountfs_rw
+  dos2unix /root/bin/usb_service.py
 
   chmod +x /root/bin/disable_gadget.sh
   chmod +x /root/bin/enable_gadget.sh
   chmod +x /root/bin/mount_usb.sh
   chmod +x /root/bin/remountfs_rw
+  chmod +x /root/bin/usb_service.py
 }
 
 # If only the dwc2 module is loaded at boot then the Pi will present
@@ -609,14 +612,6 @@ then
   setup_progress "Installing user requested packages: ${INSTALL_USER_REQUESTED_PACKAGES}"
   read -r -a EXTRA_PACKAGES <<< "${INSTALL_USER_REQUESTED_PACKAGES[@]}"
   DEBIAN_FRONTEND=noninteractive apt-get -y --force-yes install "${EXTRA_PACKAGES[@]}"
-fi
-
-if [ -e /boot/RASPDRIVE_SETUP_FINISHED ]
-then
-  setup_progress "Creating USB disk files... This May Take a While..."
-  copy_script boot/createBinUSB.sh /tmp
-  chmod +x /tmp/createBinUSB.sh
-  /tmp/createBinUSB.sh
 fi
 
 headless_setup_mark_setup_success
