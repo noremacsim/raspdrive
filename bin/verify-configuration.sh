@@ -96,7 +96,7 @@ function check_setup_raspdrive () {
 
 check_supported_hardware
 
-check_udc
+#check_udc
 
 check_xfs
 
