@@ -30,6 +30,6 @@ rmdir "$gadget_root"
 
 modprobe -r usb_f_mass_storage g_ether usb_f_ecm usb_f_rndis libcomposite || true
 #
-#if mountpoint -q /mnt/usbdata; then
-#    umount -f /mnt/usbdata
-#fi
+if mountpoint -q /mnt/usbdata; then
+    umount -l /mnt/usbdata
+fi

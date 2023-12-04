@@ -4,7 +4,7 @@ source /root/bin/envsetup.sh
 
 if [ -e "/mnt/connectedUSB" ]; then
   if mountpoint -q /mnt/connectedUSB; then
-      umount -f /mnt/connectedUSB
+      umount -l /mnt/connectedUSB
   fi
   mount $DATA_DRIVE /mnt/connectedUSB
 else
@@ -14,7 +14,7 @@ fi
 
 if [ -e "/mnt/usbdata" ]; then
   if mountpoint -q /mnt/usbdata; then
-      umount -f /mnt/usbdata
+      umount -l /mnt/usbdata
   fi
   mount /mnt/connectedUSB/usbdata.bin /mnt/usbdata
 else

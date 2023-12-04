@@ -598,7 +598,7 @@ fi
 setup_progress "Preparing USB"
 create_usb_drive_and_mount_point
 
-# source setup_raspdrive from .bashrc to set up completion
+# source setup_raspdrive from .b./ashrc to set up completion
 if ! grep -q envsetup.sh /root/.bashrc
 then
   echo "source /root/bin/envsetup.sh" >> /root/.bashrc
