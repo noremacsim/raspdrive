@@ -13,8 +13,8 @@ export DATA_DRIVE=/dev/sda
 export SAMBA_ENABLED=true
 export SAMBA_GUEST=true
 
-export AP_SSID='RASPDRIVE-WIFI'
-export AP_PASS='raspberry'
+#export AP_SSID='RASPDRIVE-WIFI'
+#export AP_PASS='raspberry'
 export USB_HOSTNAME=RASPDRIVE
 
 # Uncomment if setting up Telegram notifications
