@@ -38,6 +38,24 @@ fi
 # install the fuse layer needed to work around an incompatibility
 #g++ -o /root/cttseraser -D_FILE_OFFSET_BITS=64 "$SOURCE_DIR/webcttseraser.cpp" -lstdc++ -lfuse
 
+function curlwrapper () {
+  setup_progress "curl $*" > /dev/null
+  local attempts=0
+  while ! curl -s -S --stderr /tmp/curl.err --fail "$@"
+  do
+    attempts=$((attempts + 1))
+    if [ "$attempts" -ge 20 ]
+    then
+      setup_progress "giving up after 20 tries"
+      setup_progress "$(cat /tmp/curl.err)"
+      exit 1
+    fi
+    setup_progress "'curl $*' failed, retrying" > /dev/null
+    sntp -S time.google.com || true
+    sleep 3
+  done
+}
+
 # install new UI (compiled js/css files)
 curlwrapper -L -o /tmp/webui.zip https://github.com/noremacsim/raspdrive-webui/releases/latest/download/raspdrive-ui.zip
 unzip /tmp/webui.zip -d /var/www/html
