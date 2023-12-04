@@ -216,7 +216,7 @@ function get_common_scripts () {
   copy_script bin/mount_usb.sh /root/bin
   copy_script bin/enable_gadget.sh /root/bin
   copy_script bin/disable_gadget.sh /root/bin
-  copy_script bin/usb_service.py /root/bin
+  copy_script boot/usb_service.py /root/bin
 
   dos2unix /root/bin/disable_gadget.sh
   dos2unix /root/bin/enable_gadget.sh
