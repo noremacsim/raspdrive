@@ -1,0 +1,13 @@
+[Unit]
+Description=RaspDrive Python Detect Changes
+After=network.target rc-local.service
+
+[Service]
+ExecStart=/root/bin/mount_usb.sh
+WorkingDirectory=/
+Restart=always
+User=root
+Group=root
+
+[Install]
+WantedBy=default.target
