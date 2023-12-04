@@ -569,7 +569,7 @@ copy_script apps/configure_ssh.sh /tmp
 /tmp/configure_ssh.sh
 
 copy_script apps/configure_web.sh /tmp
-/tmp/configure-web.sh
+/tmp/configure_web.sh
 
 setup_progress "Preparing USB"
 create_usb_drive_and_mount_point
