@@ -18,22 +18,13 @@ apt-get -y --force-yes install nginx fcgiwrap libnginx-mod-http-fancyindex fuse 
 # install data files and config files
 systemctl stop nginx.service &> /dev/null || true
 mkdir -p /var/www
-umount /var/www/html/RaspDrive &> /dev/null || true
+umount /var/www/html/app &> /dev/null || true
 rm -rf /var/www/html
 cp -r "$SOURCE_DIR/web/html" /var/www/
 ln -s /boot/raspdrive-headless-setup.log /var/www/html/
-mkdir /var/www/html/RaspDrive
+mkdir /var/www/html/app
 cp -rf "$SOURCE_DIR/web/raspdrive.nginx" /etc/nginx/sites-available
 ln -sf /etc/nginx/sites-available/raspdrive.nginx /etc/nginx/sites-enabled/default
-
-# Setup /etc/nginx/.htpasswd if user requested web auth, otherwise disable auth_basic
-if [ -n "${WEB_USERNAME:-}" ] && [ -n "${WEB_PASSWORD:-}" ]
-then
-  apt-get -y --force-yes install apache2-utils
-  htpasswd -bc /etc/nginx/.htpasswd "$WEB_USERNAME" "$WEB_PASSWORD"
-else
-  sed -i 's/auth_basic "Restricted Content"/auth_basic off/' /etc/nginx/sites-available/raspdrive.nginx
-fi
 
 # install the fuse layer needed to work around an incompatibility
 #g++ -o /root/cttseraser -D_FILE_OFFSET_BITS=64 "$SOURCE_DIR/webcttseraser.cpp" -lstdc++ -lfuse
@@ -56,12 +47,12 @@ function curlwrapper () {
   done
 }
 
-# install new UI (compiled js/css files)
+# install app UI (compiled js/css files)
 curlwrapper -L -o /tmp/webui.zip https://github.com/noremacsim/raspdrive-webui/releases/latest/download/raspdrive-ui.zip
 unzip /tmp/webui.zip -d /var/www/html
-if [ -d /var/www/html/new ] && ! [ -e /var/www/html/new/favicon.ico ]
+if [ -d /var/www/html/app ] && ! [ -e /var/www/html/app/favicon.ico ]
 then
-  ln -s /var/www/html/favicon.ico /var/www/html/new/favicon.ico
+  ln -s /var/www/html/favicon.ico /var/www/html/app/favicon.ico
 fi
 
 
