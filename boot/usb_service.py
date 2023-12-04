@@ -4,7 +4,7 @@ import os
 from watchdog.observers import Observer
 from watchdog.events import *
 
-CMD_FLUSH = "sh /root/bin/enable_gadget.sh"
+CMD_FLUSH = "sh /root/bin/flush_system.sh"
 
 WATCH_PATH = "/mnt/connectedUSB"
 ACT_EVENTS = [DirDeletedEvent, DirMovedEvent, FileDeletedEvent, FileModifiedEvent, FileMovedEvent]

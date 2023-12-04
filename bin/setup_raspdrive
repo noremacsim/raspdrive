@@ -216,6 +216,7 @@ function get_common_scripts () {
   copy_script bin/mount_usb.sh /root/bin
   copy_script bin/enable_gadget.sh /root/bin
   copy_script bin/disable_gadget.sh /root/bin
+  copy_script bin/flush_system.sh /root/bin
   copy_script boot/usb_service.py /root/bin
 
   dos2unix /root/bin/disable_gadget.sh
@@ -223,12 +224,14 @@ function get_common_scripts () {
   dos2unix /root/bin/mount_usb.sh
   dos2unix /root/bin/remountfs_rw
   dos2unix /root/bin/usb_service.py
+  dos2unix /root/bin/flush_system.sh
 
   chmod +x /root/bin/disable_gadget.sh
   chmod +x /root/bin/enable_gadget.sh
   chmod +x /root/bin/mount_usb.sh
   chmod +x /root/bin/remountfs_rw
   chmod +x /root/bin/usb_service.py
+  chmod +x /root/bin/flush_system.sh
 }
 
 # If only the dwc2 module is loaded at boot then the Pi will present
