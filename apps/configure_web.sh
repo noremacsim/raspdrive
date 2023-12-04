@@ -36,7 +36,7 @@ else
 fi
 
 # install the fuse layer needed to work around an incompatibility
-g++ -o /root/cttseraser -D_FILE_OFFSET_BITS=64 "$SOURCE_DIR/webcttseraser.cpp" -lstdc++ -lfuse
+#g++ -o /root/cttseraser -D_FILE_OFFSET_BITS=64 "$SOURCE_DIR/webcttseraser.cpp" -lstdc++ -lfuse
 
 # install new UI (compiled js/css files)
 curlwrapper -L -o /tmp/webui.zip https://github.com/noremacsim/raspdrive-webui/releases/latest/download/raspdrive-ui.zip
