@@ -634,7 +634,7 @@ fi
 
 headless_setup_mark_setup_success
 
-echo "$DATA_DRIVE /mnt/connectedUSB defaults,x-systemd.requires=/mnt/connectedUSB/usbdata.bin 0 0" | tee -a /etc/fstab
+echo "$DATA_DRIVE /mnt/connectedUSB defaults 0 0" | tee -a /etc/fstab
 echo "/mnt/connectedUSB/usbdata.bin /mnt/usbdata defaults 0 0" | tee -a /etc/fstab
 
 copy_script services/raspdrive.service /etc/systemd/system
