@@ -11,3 +11,7 @@ else
   mkdir /mnt/connectedUSB
   mount $DATA_DRIVE /mnt/connectedUSB
 fi
+
+/root/bin/disable_gadget.sh
+/root/bin/enable_gadget.sh
+python3 /root/bin/usb_service.py

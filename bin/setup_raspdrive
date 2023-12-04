@@ -125,7 +125,7 @@ if [ -e "$WPA" ] && ! grep -q "country=" $WPA && grep -q "network=" $WPA
 then
   setup_progress "adding country code to wpa_supplicant.conf"
   echo "country=GB" >> $WPA
-  REBOOT=true
+  REBOOT=false
 fi
 
 BOOT_DISK=$(lsblk -dpno pkname "$(findmnt -D -no SOURCE --target /boot)")
@@ -150,25 +150,25 @@ then
     ROOTSIZE=$((ROOTSIZE + INCREASE_ROOT_SIZE))
     echo "$ROOTSTART,$ROOTSIZE" | sfdisk --force "${BOOT_DISK}" -N "${ROOT_PART_NUM}"
     setup_progress "increased root partition size"
-    REBOOT=true
+    REBOOT=false
   else
     setup_progress "increasing root filesystem size to match partition size"
     resize2fs "${ROOT_PARTITION_DEVICE}"
   fi
 fi
 
-if [ "$REBOOT" = "true" ]
-then
-  if [ -t 0 ] && [ "${NO_REBOOT_PROMPT:-}" != "1" ]
-  then
-    setup_progress "please reboot for changes to take effect"
-    exit
-  else
-    setup_progress "rebooting for changes to take effect"
-    reboot
-    exit
-  fi
-fi
+#if [ "$REBOOT" = "true" ]
+#then
+#  if [ -t 0 ] && [ "${NO_REBOOT_PROMPT:-}" != "1" ]
+#  then
+#    setup_progress "please reboot for changes to take effect"
+#    exit
+#  else
+#    setup_progress "rebooting for changes to take effect"
+#    reboot
+#    exit
+#  fi
+#fi
 
 function headless_setup_mark_setup_success () {
   rm -f /boot/RASPDRIVE_SETUP_FAILED
@@ -437,18 +437,18 @@ function cmd_upgrade_prepare {
   ) &> /dev/null
 }
 
-function cmd_upgrade_finish {
-  mv /tmp/setup_raspdrive /root/bin/setup_raspdrive
-  mv /tmp/envsetup.sh /root/bin/envsetup.sh
-  setup_progress "upgrade finished"
-  for i in {5..1}
-  do
-    echo -e -n "rebooting in $i seconds to apply changes, press ctrl-c to abort\r"
-    sleep 1
-  done
-  echo -e '\nRebooting'
-  reboot
-}
+#function cmd_upgrade_finish {
+#  mv /tmp/setup_raspdrive /root/bin/setup_raspdrive
+#  mv /tmp/envsetup.sh /root/bin/envsetup.sh
+#  setup_progress "upgrade finished"
+#  for i in {5..1}
+#  do
+#    echo -e -n "rebooting in $i seconds to apply changes, press ctrl-c to abort\r"
+#    sleep 1
+#  done
+#  echo -e '\nRebooting'
+#  reboot
+#}
 
 function checkfsrw() {
   local -r opts=$(findmnt -n -o options "$1")
@@ -493,9 +493,7 @@ then
   if ! grep -q 'dtoverlay=dwc2' "$PICONFIG_PATH"
   then
     echo -e "dtoverlay=dwc2\n" >> "$PICONFIG_PATH"
-    setup_progress "rebooting to apply dwc2 overlay change"
-    reboot
-    exit 0
+    setup_progress "reboot to apply dwc2 overlay change"
   fi
 fi
 
@@ -523,8 +521,8 @@ else
   caller=$(ps -o comm= "$((grandparent))")
   if [ "$caller" = "rc.local" ] && [ ! -t 0 ]
   then
-    setup_progress "rebooting to run updated rc.local"
-    exec reboot
+    setup_progress "reboot to run updated rc.local"
+    exit 0
   fi
 fi
 
@@ -569,6 +567,9 @@ fi
 
 copy_script apps/configure_ssh.sh /tmp
 /tmp/configure_ssh.sh
+
+copy_script apps/configure_web.sh /tmp
+/tmp/configure-web.sh
 
 setup_progress "Preparing USB"
 create_usb_drive_and_mount_point

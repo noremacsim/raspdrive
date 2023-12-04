@@ -102,6 +102,7 @@ EOF
 if [ -e /boot/RASPDRIVE_SETUP_FINISHED ]
 then
     /root/bin/mount_usb.sh
+    python3 /root/bin/usb_service.py
 else
   if [ -e "/boot/raspdrive_setup_variables.conf" ]
   then
