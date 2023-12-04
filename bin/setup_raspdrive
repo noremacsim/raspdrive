@@ -634,12 +634,12 @@ fi
 
 headless_setup_mark_setup_success
 
-echo "$DATA_DRIVE /mnt/connectedUSB defaults 0 0" | tee -a /etc/fstab
-echo "/mnt/connectedUSB/usbdata.bin /mnt/usbdata defaults 0 0" | tee -a /etc/fstab
+#echo "$DATA_DRIVE /mnt/connectedUSB defaults 0 0" | tee -a /etc/fstab
+#echo "/mnt/connectedUSB/usbdata.bin /mnt/usbdata vfat defaults 0 0" | tee -a /etc/fstab
 
-copy_script services/raspdrive.service /etc/systemd/system
-systemctl enable raspdrive.service
-systemctl start raspdrive.service
+#copy_script services/raspdrive.service /etc/systemd/system
+#systemctl enable raspdrive.service
+#systemctl start raspdrive.service
 
 # Flash for stage 5 headless (Mark success, FS readonly)
 headless_setup_progress_flash 5
