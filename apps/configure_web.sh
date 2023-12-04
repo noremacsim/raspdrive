@@ -47,11 +47,11 @@ then
 fi
 
 
-cat > /sbin/mount.ctts << EOF
-#!/bin/bash -eu
-/root/cttseraser "\$@" -o allow_other
-EOF
-chmod +x /sbin/mount.ctts
+#cat > /sbin/mount.ctts << EOF
+##!/bin/bash -eu
+#/root/cttseraser "\$@" -o allow_other
+#EOF
+#chmod +x /sbin/mount.ctts
 
 #sed -i '/mount.ctts/d' /etc/fstab
 #echo "mount.ctts#/mutable/RaspDrive /var/www/html/RaspDrive fuse defaults,nofail,x-systemd.requires=/mutable 0 0" >> /etc/fstab
