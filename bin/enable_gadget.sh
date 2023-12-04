@@ -2,10 +2,10 @@
 
 source /root/bin/envsetup.sh
 
-#if [ ! -e "/mnt/connectedUSB/usbdata.bin" ]; then
-#  echo "error: usbdata.bin not found. maybe mount connected usb first"
-#  exit 1
-#fi
+if [ ! -e "/mnt/connectedUSB/usbdata.bin" ]; then
+  echo "error: usbdata.bin not found. maybe mount connected usb first"
+  exit 1
+fi
 
 if ! configfs_root=$(findmnt -o TARGET -n configfs)
 then
@@ -53,23 +53,13 @@ else
   echo 100 > "$gadget_root/configs/$cfg.1/MaxPower"
 fi
 
-## mass storage setup
-#mkdir -p "$gadget_root/functions/mass_storage.0"
-#echo "/mnt/connectedUSB/usbdata.bin" > "$gadget_root/functions/mass_storage.0/lun.0/file"
-#echo "RaspDrive $(du -h /mnt/connectedUSB/usbdata.bin | awk '{print $1}')" > "$gadget_root/functions/mass_storage.0/lun.0/inquiry_string"
+# mass storage setup
+mkdir -p "$gadget_root/functions/mass_storage.0"
+echo "/mnt/connectedUSB/usbdata.bin" > "$gadget_root/functions/mass_storage.0/lun.0/file"
+echo "RaspDrive $(du -h /mnt/connectedUSB/usbdata.bin | awk '{print $1}')" > "$gadget_root/functions/mass_storage.0/lun.0/inquiry_string"
 
 
 ln -sf "$gadget_root/functions/mass_storage.0" "$gadget_root/configs/$cfg.1"
 
 # activate
 ls /sys/class/udc > "$gadget_root/UDC"
-
-#if [ -e "/mnt/usbdata" ]; then
-#  if mountpoint -q /mnt/usbdata; then
-#      umount -f /mnt/usbdata
-#  fi
-#  mount /mnt/connectedUSB/usbdata.bin /mnt/usbdata
-#else
-#  mkdir /mnt/usbdata
-#  mount /mnt/connectedUSB/usbdata.bin /mnt/usbdata
-#fi
