@@ -66,7 +66,7 @@ ls /sys/class/udc > "$gadget_root/UDC"
 
 if [ -e "/mnt/usbdata" ]; then
   if mountpoint -q /mnt/usbdata; then
-      umount /mnt/usbdata
+      umount -l /mnt/usbdata
   fi
   mount /mnt/connectedUSB/usbdata.bin /mnt/usbdata
 else

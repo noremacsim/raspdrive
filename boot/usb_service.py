@@ -13,7 +13,7 @@ CMD_SYNC = "sync"
 
 WATCH_PATH = "/mnt/connectedUSB"
 ACT_EVENTS = [DirDeletedEvent, DirMovedEvent, FileDeletedEvent, FileModifiedEvent, FileMovedEvent]
-ACT_TIME_OUT = 5
+ACT_TIME_OUT = 15
 
 class DirtyHandler(FileSystemEventHandler):
     def __init__(self):
@@ -59,7 +59,7 @@ try:
                 evh.reset()
             time.sleep(5)
 
-        time.sleep(1)
+        time.sleep(2)
 
 except KeyboardInterrupt:
     observer.stop()

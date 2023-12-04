@@ -36,6 +36,10 @@ else
   ether_speed=
 fi
 
+total_available_space=$(stat --format="%s" "/mnt/connectedUSB/usbdata.bin")
+total_used_space=$(du -sb "/mnt/usbdata" | awk '{print $1}')
+total_free_space=$((total_available_space - total_used_space))
+
 read -r -d ' ' ut < /proc/uptime
 
 cat << EOF
@@ -44,7 +48,9 @@ Content-type: application/json
 
 {
    "cpu_temp": "$(cat /sys/class/thermal/thermal_zone0/temp)",
-   $(eval "$(stat --file-system --format='echo -e \"total_space\": \"$((%b*%S))\",\\\n\ \ \ \"free_space\": \"$((%f*%S))\",' /mnt/connectedUSB/usbdata.bin)")
+   "total_space": "$total_available_space",
+   "used_space": "$total_used_space",
+   "free_space": "$total_free_space",
    "uptime": "$ut",
    "drives_active": "$drives_active",
    "wifi_ssid": "$wifi_ssid",
