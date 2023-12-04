@@ -634,9 +634,9 @@ fi
 
 headless_setup_mark_setup_success
 
-copy_script services/raspdrive.service /etc/systemd/system/
-systemctl enable myservice.service
-systemctl start myservice.service
+copy_script services/raspdrive.service /etc/systemd/system
+systemctl enable raspdrive.service
+systemctl start raspdrive.service
 
 # Flash for stage 5 headless (Mark success, FS readonly)
 headless_setup_progress_flash 5
