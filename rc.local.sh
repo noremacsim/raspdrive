@@ -99,8 +99,10 @@ EOF
   source "$1"
 }
 
-if [ ! -e /boot/RASPDRIVE_SETUP_FINISHED ]
-
+if [ -e /boot/RASPDRIVE_SETUP_FINISHED ]
+then
+   echo 'Setup Complete'
+else
   if [ -e "/boot/raspdrive_setup_variables.conf" ]
   then
     mv /boot/raspdrive_setup_variables.conf /root/
