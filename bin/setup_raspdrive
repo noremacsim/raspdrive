@@ -575,17 +575,18 @@ then
   /tmp/configure_samba.sh
 fi
 
+copy_script apps/configure_ssh.sh /tmp
+/tmp/configure_ssh.sh
+
+copy_script apps/configure_web.sh /tmp
+/tmp/configure_web.sh
+
 if [ -n "${AP_SSID:+x}" ]
 then
   copy_script apps/configure_ap.sh /tmp
   /tmp/configure_ap.sh
 fi
 
-copy_script apps/configure_ssh.sh /tmp
-/tmp/configure_ssh.sh
-
-copy_script apps/configure_web.sh /tmp
-/tmp/configure_web.sh
 
 setup_progress "Preparing USB"
 create_usb_drive_and_mount_point
