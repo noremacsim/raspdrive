@@ -274,12 +274,17 @@ function fix_cmdline_txt_modules_load () {
 function create_usb_drive_and_mount_point () {
   copy_script boot/formatUSB.sh /tmp
 
+  if mountpoint -q /mnt/connectedUSB; then
+      umount -l /mnt/connectedUSB
+  fi
+
   setup_progress "Formatting USB..."
   chmod +x /tmp/formatUSB.sh
   /tmp/formatUSB.sh
 
   setup_progress "Mounting the USB..."
-  /root/bin/mount_usb.sh
+  /root/bin/lsbl.sh
+
 
   if [ ! -e /mnt/connectedUSB/usbdata.bin ]
   then

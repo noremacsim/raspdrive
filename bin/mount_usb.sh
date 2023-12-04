@@ -12,6 +12,6 @@ else
   mount $DATA_DRIVE /mnt/connectedUSB
 fi
 
-/root/bin/disable_gadget.sh
-/root/bin/enable_gadget.sh
+/root/bin/disable_gadget.sh || true
+/root/bin/enable_gadget.sh || true
 python3 /root/bin/usb_service.py

@@ -56,19 +56,8 @@ then
 fi
 
 
-#cat > /sbin/mount.ctts << EOF
-##!/bin/bash -eu
-#/root/cttseraser "\$@" -o allow_other
-#EOF
-#chmod +x /sbin/mount.ctts
-
-#sed -i '/mount.ctts/d' /etc/fstab
-#echo "mount.ctts#/mutable/RaspDrive /var/www/html/RaspDrive fuse defaults,nofail,x-systemd.requires=/mutable 0 0" >> /etc/fstab
-
 sed -i 's/#user_allow_other/user_allow_other/' /etc/fuse.conf
 
-# to get diagnostics and perform other teslausb functionality,
-# nginx needs to be able to sudo
 echo 'www-data ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/010_www-data-nopasswd
 chmod 440 /etc/sudoers.d/010_www-data-nopasswd
 
@@ -76,5 +65,8 @@ chmod 440 /etc/sudoers.d/010_www-data-nopasswd
 cat > /etc/default/fcgiwrap << EOF
 DAEMON_OPTS="-c 4 -f"
 EOF
+
+chmod -R 755 /var/www/html/cgi-bin/
+chown -R www-data:www-data /var/www/html/cgi-bin/
 
 setup_progress "done configuring nginx"
