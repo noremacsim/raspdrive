@@ -61,10 +61,5 @@ echo "RaspDrive $(du -h /mnt/connectedUSB/usbdata.bin | awk '{print $1}')" > "$g
 
 ln -sf "$gadget_root/functions/mass_storage.0" "$gadget_root/configs/$cfg.1"
 
-retries=5
-delay=2
-
-for ((i = 0; i < retries; i++)); do
-    ls /sys/class/udc > "$gadget_root/UDC" && break
-    sleep "$delay"
-done || true
+# activate
+ls /sys/class/udc > "$gadget_root/UDC"

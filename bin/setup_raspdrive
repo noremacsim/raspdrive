@@ -278,28 +278,32 @@ function fix_cmdline_txt_modules_load () {
 
 
 function create_usb_drive_and_mount_point () {
+  # Format the USB
   copy_script boot/formatUSB.sh /tmp
 
-  if mountpoint -q /mnt/connectedUSB; then
-      umount -f /mnt/connectedUSB
+  # Create the Mount Directories
+
+  if [ ! -e "/mnt/connectedUSB" ]; then
+    mkdir /mnt/connectedUSB
   fi
 
+  if [ ! -e "/mnt/usbdata" ]; then
+    mkdir /mnt/usbdata
+  fi
+
+  # Format the usb
   setup_progress "Formatting USB..."
   chmod +x /tmp/formatUSB.sh
   /tmp/formatUSB.sh
 
+  # Mount the usb
   setup_progress "Mounting the USB..."
 
-  if [ -e "/mnt/connectedUSB" ]; then
-    if mountpoint -q /mnt/connectedUSB; then
-        umount -f /mnt/connectedUSB
-    fi
-    mount $DATA_DRIVE /mnt/connectedUSB
-  else
-    mkdir /mnt/connectedUSB
-    mount $DATA_DRIVE /mnt/connectedUSB
+  if ! mountpoint -q /mnt/connectedUSB; then
+      mount $DATA_DRIVE /mnt/connectedUSB
   fi
 
+  # Create the USB Data Bin
   if [ ! -e /mnt/connectedUSB/usbdata.bin ]
   then
     setup_progress "Creating USB disk files... This May Take a While..."
@@ -307,6 +311,10 @@ function create_usb_drive_and_mount_point () {
     chmod +x /tmp/createBinUSB.sh
     /tmp/createBinUSB.sh
   fi
+
+  # Create the auto mount points for the fstabs
+  echo "/dev/sda /mnt/connectedUSB ext4 defaults 0 0" | tee -a /etc/fstab
+  echo "/mnt/connectedUSB/usbdata.bin /mnt/usbdata vfat defaults 0 0" | tee -a /etc/fstab
 }
 
 function configure_hostname () {
@@ -571,13 +579,8 @@ fix_cmdline_txt_modules_load
 # Flash for stage 4 headless (Create backing files)
 headless_setup_progress_flash 4
 
-if [ ! -e "/mnt/connectedUSB" ]; then
-  mkdir /mnt/connectedUSB
-fi
-
-if [ ! -e "/mnt/usbdata" ]; then
-  mkdir /mnt/usbdata
-fi
+setup_progress "Preparing USB"
+create_usb_drive_and_mount_point
 
 if [ "$SAMBA_ENABLED" = "true" ]
 then
@@ -597,11 +600,6 @@ then
   copy_script apps/configure_ap.sh /tmp
   /tmp/configure_ap.sh
 fi
-
-setup_progress "Preparing USB"
-create_usb_drive_and_mount_point
-
-#/root/bin/configure_automount.sh
 
 # source setup_raspdrive from .b./ashrc to set up completion
 if ! grep -q envsetup.sh /root/.bashrc
@@ -645,11 +643,6 @@ then
 fi
 
 headless_setup_mark_setup_success
-
-
-#copy_script services/raspdrive.service /etc/systemd/system
-#systemctl enable raspdrive.service
-#systemctl start raspdrive.service
 
 # Flash for stage 5 headless (Mark success, FS readonly)
 headless_setup_progress_flash 5
