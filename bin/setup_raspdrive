@@ -601,7 +601,7 @@ fi
 setup_progress "Preparing USB"
 create_usb_drive_and_mount_point
 
-/root/bin/configure_automount.sh
+#/root/bin/configure_automount.sh
 
 # source setup_raspdrive from .b./ashrc to set up completion
 if ! grep -q envsetup.sh /root/.bashrc
