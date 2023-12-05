@@ -2,26 +2,15 @@
 
 source /root/bin/envsetup.sh
 
-if [ -e "/mnt/connectedUSB" ]; then
-  if mountpoint -q /mnt/connectedUSB; then
-      umount -l /mnt/connectedUSB
-  fi
-  mount $DATA_DRIVE /mnt/connectedUSB
-else
-  mkdir /mnt/connectedUSB
-  mount $DATA_DRIVE /mnt/connectedUSB
-fi
+while [ ! -d "/mnt/connectedUSB" ]; do
+    echo 'waiting to mount /mnt/connectedUSB'
+    sleep 1
+done
 
-if [ -e "/mnt/usbdata" ]; then
-  if mountpoint -q /mnt/usbdata; then
-      umount -l /mnt/usbdata
-  fi
-  mount /mnt/connectedUSB/usbdata.bin /mnt/usbdata
-else
-  mkdir /mnt/usbdata
-  mount /mnt/connectedUSB/usbdata.bin /mnt/usbdata
-fi
+while [ ! -d "/mnt/usbdata" ]; do
+    echo 'waiting to mount /mnt/usbdata'
+    sleep 1
+done
 
-/root/bin/disable_gadget.sh || true
 /root/bin/enable_gadget.sh || true
 python3 /root/bin/usb_service.py
