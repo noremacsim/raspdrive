@@ -10,20 +10,18 @@ function log_progress () {
   echo "configure-ap: $1"
 }
 
-sudo bash -c "cat > /etc/wpa_supplicant/wpa_supplicant.conf <<EOF
+sudo tee /etc/wpa_supplicant/wpa_supplicant.conf > /dev/null <<EOF
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
 country=GB
 
 network={
-  ssid='SSIDHERE'
-  psk='PASSWORDHERE'
+  ssid="ssidhere"
+  psk="passwordhere"
   key_mgmt=WPA-PSK
-  # Uncomment the following line, if you are trying
-  # to connect to a network with a _hidden_ SSID
-  #scan_ssid=1
 }
-EOF"
+
+EOF
 
 AP_SSID='RASPDRIVE_WIFI'
 AP_PASS='raspberry'
