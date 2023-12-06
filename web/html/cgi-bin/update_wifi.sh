@@ -1,27 +1,41 @@
 #!/bin/bash
 
-IFS='=' read -r -a query_parts <<< "$QUERY_STRING"
-ssid="${query_parts[1]:-}"
-password="${query_parts[2]:-}"
+# Function to decode URL-encoded values
+urldecode() {
+    echo -e "$(sed 's/+/ /g; s/%\(..\)/\\x\1/g')"
+}
 
-sudo bash -c "cat > /etc/wpa_supplicant/wpa_supplicant.conf <<EOF
+# Initialize variables
+ssid=""
+password=""
+
+# Parse query string using grep and awk
+query_string="$QUERY_STRING"
+ssid=$(echo "$query_string" | grep -oP 'ssid=\K[^&]*' | urldecode)
+password=$(echo "$query_string" | grep -oP 'password=\K.*' | urldecode)
+
+# Generate wpa_supplicant.conf
+sudo tee /etc/wpa_supplicant/wpa_supplicant.conf > /dev/null <<EOF
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
 country=GB
 
 network={
-  ssid='$ssid'
-  psk='$password'
+  ssid="$ssid"
+  psk="$password"
   key_mgmt=WPA-PSK
-  # Uncomment the following line, if you are trying
-  # to connect to a network with a _hidden_ SSID
-  #scan_ssid=1
-  id_str='AP1'
+  id_str="AP1"
 }
-EOF"
 
+EOF
+
+# Respond with HTTP 200 OK and JSON content type
 cat << EOF
 HTTP/1.0 200 OK
 Content-type: application/json
 
+{
+  "message": "Configuration updated successfully"
+}
 EOF
+

@@ -81,23 +81,22 @@ then
 
   # define network interfaces. Note use of 'AP1' name, defined in wpa_supplication.conf below
   cat <<- EOF > /etc/network/interfaces
-	source-directory /etc/network/interfaces.d
+  source-directory /etc/network/interfaces.d
 
-	auto lo
-	auto ap0
-	auto wlan0
-	iface lo inet loopback
+  auto lo
+  iface lo inet loopback
 
-	allow-hotplug ap0
-	iface ap0 inet static
-	    address ${IP}
-	    netmask 255.255.255.0
-	    hostapd /etc/hostapd/hostapd.conf
+  # Configuration for Access Point (AP) interface
+  auto ap0
+  iface ap0 inet static
+      address ${IP}
+      netmask 255.255.255.0
+      hostapd /etc/hostapd/hostapd.conf
 
-	allow-hotplug wlan0
-	iface wlan0 inet manual
-	    wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
-	iface AP1 inet dhcp
+  # Configuration for Wireless Client interface
+  auto wlan0
+  iface wlan0 inet manual
+      wpa-roam /etc/wpa_supplicant/wpa_supplicant.conf
 	EOF
 
   # For bullseye it is apparently necessary to explicitly disable wpa_supplicant for the ap0 interface
