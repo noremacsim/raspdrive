@@ -6,6 +6,9 @@ CURL_ERR_LOG="/tmp/curl.err"
 
 sudo rm -Rf "$TARGET_DIR"
 
+echo "Content-type: text/plain"
+echo
+
 function curlwrapper() {
   local attempts=0
   while ! curl -s -S --stderr "$CURL_ERR_LOG" --fail "$@"
