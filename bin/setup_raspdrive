@@ -212,31 +212,25 @@ function verify_configuration () {
 function get_common_scripts () {
   setup_progress "Downloading common runtime scripts."
 
-  copy_script bin/remountfs_rw /root/bin
-#  copy_script bin/mount_usb.sh /root/bin
+  copy_script bin/usb_loop.sh /root/bin
   copy_script bin/enable_gadget.sh /root/bin
   copy_script bin/disable_gadget.sh /root/bin
   copy_script bin/flush_system.sh /root/bin
-#  copy_script boot/usb_service.py /root/bin
-#  copy_script bin/configure_automount.sh /root/bin
+  copy_script boot/usb_service.py /root/bin
   copy_script bin/mountoptsforimage /root/bin
   copy_script bin/mountimage /root/bin
 
   dos2unix /root/bin/disable_gadget.sh
   dos2unix /root/bin/enable_gadget.sh
-#  dos2unix /root/bin/mount_usb.sh
-  dos2unix /root/bin/remountfs_rw
-#  dos2unix /root/bin/usb_service.py
+  dos2unix /root/bin/usb_loop.sh
+  dos2unix /root/bin/usb_service.py
   dos2unix /root/bin/flush_system.sh
-#  dos2unix /root/bin/configure_automount.sh
 
   chmod +x /root/bin/disable_gadget.sh
   chmod +x /root/bin/enable_gadget.sh
-#  chmod +x /root/bin/mount_usb.sh
-  chmod +x /root/bin/remountfs_rw
-#  chmod +x /root/bin/usb_service.py
+  chmod +x /root/bin/usb_loop.sh
+  chmod +x /root/bin/usb_service.py
   chmod +x /root/bin/flush_system.sh
-#  chmod +x /root/bin/configure_automount.sh
 
   ln -sf /root/bin/mountimage /sbin/mount.raspdrive
 
@@ -612,8 +606,8 @@ then
   /tmp/configure_samba.sh
 fi
 
-#copy_script bin/configure-automount.sh /tmp
-#/tmp/configure-automount.sh
+copy_script services/raspdrive.service /lib/systemd/system
+systemctl enable raspdrive.service
 
 copy_script apps/configure_ssh.sh /tmp
 /tmp/configure_ssh.sh

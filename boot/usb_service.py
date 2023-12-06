@@ -6,7 +6,7 @@ from watchdog.events import *
 
 CMD_FLUSH = "sh /root/bin/flush_system.sh"
 
-WATCH_PATH = "/mnt/connectedUSB"
+WATCH_PATH = "/mnt/backingfiles"
 ACT_EVENTS = [DirDeletedEvent, DirMovedEvent, FileDeletedEvent, FileModifiedEvent, FileMovedEvent]
 ACT_TIME_OUT = 5
 

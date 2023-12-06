@@ -1,13 +1,12 @@
 [Unit]
-Description=RaspDrive Python Detect Changes
-After=local-fs.target
+Description=RaspDrive loop service
+DefaultDependencies=no
+After=mnt-mutable.mount mnt-backingfiles.mount
 
 [Service]
-ExecStart=/root/bin/mount_usb.sh
-WorkingDirectory=/
+Type=simple
+ExecStart=/bin/bash /root/bin/usb_loop.sh
 Restart=always
-User=root
-Group=root
 
 [Install]
-WantedBy=default.target
+WantedBy=mnt-backingfiles.mount

@@ -1,5 +1,4 @@
 #!/bin/bash -eu
-source /root/bin/envsetup.sh
 
 # g_mass_storage module may be loaded on a system that
 # is being transitioned from module to configfs
@@ -10,12 +9,12 @@ then
   echo "error: configfs not found"
   exit 1
 fi
-readonly gadget_root="$configfs_root/usb_gadget/RaspDrive"
+readonly gadget_root="$configfs_root/usb_gadget/raspdrive"
 
 if [ ! -d "$gadget_root" ]
 then
   echo "already released"
-  exit 0
+  exit 2
 fi
 
 echo > "$gadget_root/UDC" || true

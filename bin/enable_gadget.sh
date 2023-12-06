@@ -2,17 +2,12 @@
 
 source /root/bin/envsetup.sh
 
-if [ ! -e "/mnt/connectedUSB/usbdata.bin" ]; then
-  echo "error: usbdata.bin not found. maybe mount connected usb first"
-  exit 1
-fi
-
 if ! configfs_root=$(findmnt -o TARGET -n configfs)
 then
   echo "error: configfs not found"
   exit 1
 fi
-readonly gadget_root="$configfs_root/usb_gadget/RaspDrive"
+readonly gadget_root="$configfs_root/usb_gadget/raspdrive"
 
 # USB supports many languages. 0x409 is US English
 readonly lang=0x409
@@ -43,6 +38,14 @@ echo RaspDrive > "$gadget_root/strings/$lang/manufacturer"
 echo "RaspDrive Composite Gadget" > "$gadget_root/strings/$lang/product"
 echo "RaspDrive Config" > "$gadget_root/configs/$cfg.1/strings/$lang/configuration"
 
+# A bare Raspberry Pi 4 can peak at at over 700 mA during boot, but idles around
+# 450 mA, while a Raspberry Pi 4 with a USB drive can peak at over 1 A during boot
+# and idle around 550 mA.
+# A Raspberry Pi Zero 2 W can peak at over 300 mA during boot, and has an idle power
+# use of about 100 mA.
+# A Raspberry Pi Zero W can peak up to 220 mA during boot, and has an idle power
+# use of about 80 mA.
+# The largest power demand the gadget can report is 500 mA.
 if isPi4
 then
   echo 500 > "$gadget_root/configs/$cfg.1/MaxPower"
@@ -55,9 +58,9 @@ fi
 
 # mass storage setup
 mkdir -p "$gadget_root/functions/mass_storage.0"
-echo "/mnt/connectedUSB/usbdata.bin" > "$gadget_root/functions/mass_storage.0/lun.0/file"
-echo "RaspDrive $(du -h /mnt/connectedUSB/usbdata.bin | awk '{print $1}')" > "$gadget_root/functions/mass_storage.0/lun.0/inquiry_string"
 
+echo "/mnt/backingfiles/usbdata.bin" > "$gadget_root/functions/mass_storage.0/lun.0/file"
+echo "RaspDrive $(du -h /mnt/backingfiles/usbdata.bin | awk '{print $1}')" > "$gadget_root/functions/mass_storage.0/lun.0/inquiry_string"
 
 ln -sf "$gadget_root/functions/mass_storage.0" "$gadget_root/configs/$cfg.1"
 

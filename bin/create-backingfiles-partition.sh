@@ -96,27 +96,27 @@ then
     log_progress "reformatting existing backingfiles as xfs"
     killall archiveloop || true
     /root/bin/disable_gadget.sh || true
-    if mount | grep -qw "/mnt/cam"
+    if mount | grep -qw "/mnt/usbdata"
     then
-      if ! umount /mnt/cam
+      if ! umount /mnt/usbdata
       then
-        log_progress "STOP: couldn't unmount /mnt/cam"
+        log_progress "STOP: couldn't unmount /mnt/usbdata"
         exit 1
       fi
     fi
-    if mount | grep -qw "/backingfiles"
+    if mount | grep -qw "/mnt/backingfiles"
     then
-      if ! umount /backingfiles
+      if ! umount /mnt/backingfiles
       then
-        log_progress "STOP: couldn't unmount /backingfiles"
+        log_progress "STOP: couldn't unmount /mnt/backingfiles"
         exit 1
       fi
     fi
     mkfs.xfs -f -m reflink=1 -L backingfiles "${BACKINGFILES_DEVICE}"
 
     # update /etc/fstab
-    sed -i 's/LABEL=backingfiles .*/LABEL=backingfiles \/backingfiles xfs auto,rw,noatime 0 2/' /etc/fstab
-    mount /backingfiles
+    sed -i 's/LABEL=backingfiles .*/LABEL=backingfiles \/mnt/backingfiles xfs auto,rw,noatime 0 2/' /etc/fstab
+    mount /mnt/backingfiles
     log_progress "backingfiles converted to xfs and mounted"
     return &> /dev/null || exit 0
   fi
