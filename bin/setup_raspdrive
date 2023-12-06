@@ -213,28 +213,33 @@ function get_common_scripts () {
   setup_progress "Downloading common runtime scripts."
 
   copy_script bin/remountfs_rw /root/bin
-  copy_script bin/mount_usb.sh /root/bin
+#  copy_script bin/mount_usb.sh /root/bin
   copy_script bin/enable_gadget.sh /root/bin
   copy_script bin/disable_gadget.sh /root/bin
   copy_script bin/flush_system.sh /root/bin
-  copy_script boot/usb_service.py /root/bin
-  copy_script bin/configure_automount.sh /root/bin
+#  copy_script boot/usb_service.py /root/bin
+#  copy_script bin/configure_automount.sh /root/bin
+  copy_script bin/mountoptsforimage /root/bin
+  copy_script bin/mountimage /root/bin
 
   dos2unix /root/bin/disable_gadget.sh
   dos2unix /root/bin/enable_gadget.sh
-  dos2unix /root/bin/mount_usb.sh
+#  dos2unix /root/bin/mount_usb.sh
   dos2unix /root/bin/remountfs_rw
-  dos2unix /root/bin/usb_service.py
+#  dos2unix /root/bin/usb_service.py
   dos2unix /root/bin/flush_system.sh
-  dos2unix /root/bin/configure_automount.sh
+#  dos2unix /root/bin/configure_automount.sh
 
   chmod +x /root/bin/disable_gadget.sh
   chmod +x /root/bin/enable_gadget.sh
-  chmod +x /root/bin/mount_usb.sh
+#  chmod +x /root/bin/mount_usb.sh
   chmod +x /root/bin/remountfs_rw
-  chmod +x /root/bin/usb_service.py
+#  chmod +x /root/bin/usb_service.py
   chmod +x /root/bin/flush_system.sh
-  chmod +x /root/bin/configure_automount.sh
+#  chmod +x /root/bin/configure_automount.sh
+
+  ln -sf /root/bin/mountimage /sbin/mount.raspdrive
+
 }
 
 # If only the dwc2 module is loaded at boot then the Pi will present
@@ -276,45 +281,62 @@ function fix_cmdline_txt_modules_load () {
   setup_progress "$(cat "$CMDLINE_PATH")"
 }
 
+BACKINGFILES_MOUNTPOINT=/mnt/backingfiles
+MUTABLE_MOUNTPOINT=/mnt/mutable
+
+function update_backingfiles_fstab_entry () {
+  local filename="$1"
+  local mountpoint="$2"
+  sed -i "\@^$filename .*@d" /etc/fstab
+  if [ -e "$filename" ]
+  then
+    echo "$filename $mountpoint raspdrive noauto 0 0" >> /etc/fstab
+    setup_progress "updated /etc/fstab for $mountpoint"
+  fi
+}
+
 
 function create_usb_drive_and_mount_point () {
+
+  if [ ! -e "$BACKINGFILES_MOUNTPOINT" ]
+  then
+    mkdir "$BACKINGFILES_MOUNTPOINT"
+  fi
+
+  if [ ! -e "$MUTABLE_MOUNTPOINT" ]
+  then
+    mkdir "$MUTABLE_MOUNTPOINT"
+  fi
+
+  copy_script bin/create-backingfiles-partition.sh /tmp
+  /tmp/create-backingfiles-partition.sh "$BACKINGFILES_MOUNTPOINT" "$MUTABLE_MOUNTPOINT"
+
+  if ! findmnt --mountpoint $BACKINGFILES_MOUNTPOINT > /dev/null
+  then
+    setup_progress "Mounting the partition for the backing files..."
+    mount $BACKINGFILES_MOUNTPOINT
+    setup_progress "Mounted the partition for the backing files."
+  fi
+
+  if ! findmnt --mountpoint $MUTABLE_MOUNTPOINT > /dev/null
+  then
+    setup_progress "Mounting the mutable partition..."
+    mount $MUTABLE_MOUNTPOINT
+    setup_progress "Mounted the mutable partition."
+  fi
+
+  if [ ! -e $BACKINGFILES_MOUNTPOINT/usbdata.bin ]
+  then
+    setup_progress "Creating backing disk files."
+    copy_script bin/create-backingfiles.sh /tmp
+    /tmp/create-backingfiles.sh "$BACKINGFILES_MOUNTPOINT"
+  fi
+
+  update_backingfiles_fstab_entry $BACKINGFILES_MOUNTPOINT/usbdata.bin /mnt/usbdata
+  setup_progress "STOP: Couldn't check image"
+
   # Format the USB
   copy_script boot/formatUSB.sh /tmp
-
-  # Create the Mount Directories
-
-  if [ ! -e "/mnt/connectedUSB" ]; then
-    mkdir /mnt/connectedUSB
-  fi
-
-  if [ ! -e "/mnt/usbdata" ]; then
-    mkdir /mnt/usbdata
-  fi
-
-  # Format the usb
-  setup_progress "Formatting USB..."
-  chmod +x /tmp/formatUSB.sh
-  /tmp/formatUSB.sh
-
-  # Mount the usb
-  setup_progress "Mounting the USB..."
-
-  if ! mountpoint -q /mnt/connectedUSB; then
-      mount $DATA_DRIVE /mnt/connectedUSB
-  fi
-
-  # Create the USB Data Bin
-  if [ ! -e /mnt/connectedUSB/usbdata.bin ]
-  then
-    setup_progress "Creating USB disk files... This May Take a While..."
-    copy_script boot/createBinUSB.sh /tmp
-    chmod +x /tmp/createBinUSB.sh
-    /tmp/createBinUSB.sh
-  fi
-
-  # Create the auto mount points for the fstabs
-  echo "/dev/sda /mnt/connectedUSB ext4 defaults 0 0" | tee -a /etc/fstab
-  echo "/mnt/connectedUSB/usbdata.bin /mnt/usbdata vfat defaults 0 0" | tee -a /etc/fstab
 }
 
 function configure_hostname () {
@@ -456,11 +478,12 @@ function cmd_upgrade {
 function cmd_upgrade_prepare {
   setup_progress "preparing for full upgrade"
   (
+    systemctl stop raspdrive || true
     service smbd stop || true
     service autofs stop || true
-    umount /mnt/connectedUSB || true
+    umount /backingfiles || true
+    umount /mnt/usbdata || true
     /root/bin/disable_gadget.sh || true
-    /root/bin/remountfs_rw
   ) &> /dev/null
 }
 
@@ -588,6 +611,9 @@ then
   copy_script apps/configure_samba.sh /tmp
   /tmp/configure_samba.sh
 fi
+
+#copy_script bin/configure-automount.sh /tmp
+#/tmp/configure-automount.sh
 
 copy_script apps/configure_ssh.sh /tmp
 /tmp/configure_ssh.sh
