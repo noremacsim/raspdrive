@@ -10,28 +10,34 @@ function log_progress () {
   echo "configure-ap: $1"
 }
 
-if [ -z "${AP_SSID+x}" ]
-then
-  log_progress "AP_SSID not set"
-  exit 1
-fi
+sudo bash -c "cat > /etc/wpa_supplicant/wpa_supplicant.conf <<EOF
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+country=GB
 
-if [ -z "${AP_PASS+x}" ] || [ "$AP_PASS" = "password" ] || (( ${#AP_PASS} < 8))
-then
-  log_progress "AP_PASS not set, not changed from default, or too short"
-  exit 1
-fi
+network={
+  ssid='SSIDHERE'
+  psk='PASSWORDHERE'
+  key_mgmt=WPA-PSK
+  # Uncomment the following line, if you are trying
+  # to connect to a network with a _hidden_ SSID
+  #scan_ssid=1
+}
+EOF"
+
+AP_SSID='RASPDRIVE_WIFI'
+AP_PASS='raspberry'
 
 if ! grep -q id_str /etc/wpa_supplicant/wpa_supplicant.conf
 then
-  IP=${AP_IP:-"192.168.66.1"}
+  IP="192.168.66.1"
   NET=$(echo -n "$IP" | sed -e 's/\.[0-9]\{1,3\}$//')
 
   # install required packages
   log_progress "installing dnsmasq and hostapd"
   apt-get -y --force-yes install dnsmasq hostapd
 
-  log_progress "configuring AP '$AP_SSID' with IP $IP"
+  log_progress "configuring AP 'RASPDRIVE_WIFI' with IP $IP"
   # create udev rule
   MAC="$(cat /sys/class/net/wlan0/address)"
   cat <<- EOF > /etc/udev/rules.d/70-persistent-net.rules
