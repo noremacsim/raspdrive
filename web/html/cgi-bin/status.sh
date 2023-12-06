@@ -36,7 +36,7 @@ else
   ether_speed=
 fi
 
-total_available_space=$(stat --format="%s" "/mnt/connectedUSB/usbdata.bin")
+total_available_space=$(stat --format="%s" "/mnt/backingfiles/usbdata.bin")
 total_used_space=$(du -sb "/mnt/usbdata" | awk '{print $1}')
 total_free_space=$((total_available_space - total_used_space))
 

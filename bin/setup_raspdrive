@@ -284,7 +284,7 @@ function update_backingfiles_fstab_entry () {
   sed -i "\@^$filename .*@d" /etc/fstab
   if [ -e "$filename" ]
   then
-    echo "$filename $mountpoint raspdrive noauto 0 0" >> /etc/fstab
+    echo "$filename $mountpoint raspdrive auto 0 0" >> /etc/fstab
     setup_progress "updated /etc/fstab for $mountpoint"
   fi
 }

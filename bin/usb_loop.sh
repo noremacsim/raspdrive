@@ -113,7 +113,6 @@ function set_time () {
   log "Failed to set time"
 }
 
-wifichecker
 connect_usb_drives_to_host
 check_if_usb_gadget_is_mounted
 python3 /root/bin/usb_service.py

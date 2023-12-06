@@ -20,4 +20,9 @@ server {
          fastcgi_param SCRIPT_FILENAME  $document_root$fastcgi_script_name;
          fastcgi_max_temp_file_size 0;
     }
+
+    location /mnt/usbdata {
+        alias /mnt/usbdata;
+        autoindex on;  # Enable directory listing (optional, remove if not needed)
+    }
 }
