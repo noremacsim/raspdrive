@@ -1,7 +1,7 @@
 [Unit]
 Description=RaspDrive usb events
 DefaultDependencies=no
-After=raspdrive.service
+After=mnt-mutable.mount mnt-backingfiles.mount mnt-usbdata.mount raspdrive.service
 
 [Service]
 Type=simple
@@ -9,4 +9,4 @@ ExecStart=/bin/bash /root/bin/event_logger.sh
 Restart=always
 
 [Install]
-WantedBy=default.target
+WantedBy=mnt-usbdata.mount
