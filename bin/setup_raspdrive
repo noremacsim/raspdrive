@@ -219,21 +219,23 @@ function get_common_scripts () {
   copy_script boot/usb_service.py /root/bin
   copy_script bin/mountoptsforimage /root/bin
   copy_script bin/mountimage /root/bin
+  copy_script /boot/event_logger.sh /root/bin
 
   dos2unix /root/bin/disable_gadget.sh
   dos2unix /root/bin/enable_gadget.sh
   dos2unix /root/bin/usb_loop.sh
   dos2unix /root/bin/usb_service.py
   dos2unix /root/bin/flush_system.sh
+  dos2unix /root/bin/event_logger.sh
 
   chmod +x /root/bin/disable_gadget.sh
   chmod +x /root/bin/enable_gadget.sh
   chmod +x /root/bin/usb_loop.sh
   chmod +x /root/bin/usb_service.py
   chmod +x /root/bin/flush_system.sh
+  chmod +x /root/bin/event_logger.sh
 
   ln -sf /root/bin/mountimage /sbin/mount.raspdrive
-
 }
 
 # If only the dwc2 module is loaded at boot then the Pi will present
@@ -607,7 +609,9 @@ then
 fi
 
 copy_script services/raspdrive.service /lib/systemd/system
+copy_script services/raspdrive_events.service /lib/systemd/system
 systemctl enable raspdrive.service
+systemctl enable raspdrive_events.service
 
 copy_script apps/configure_ssh.sh /tmp
 /tmp/configure_ssh.sh
