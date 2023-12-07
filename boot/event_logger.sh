@@ -46,12 +46,12 @@ while true; do
                 existing_timestamp=$(grep "$file_path" "$EXISTING_STATE" | awk '{print $1}')
 
                 if [ "$timestamp" != "$existing_timestamp" ]; then
-                    echo "File Modified: $file_path" >> "$EVENTS_LOG"
+                    echo "Changed: $file_path" >> "$EVENTS_LOG"
                 fi
             elif grep -Fq "$file_path" "$LOG_FILE"; then
-                echo "File Deleted: $file_path" >> "$EVENTS_LOG"
+                echo "Deleted: $file_path" >> "$EVENTS_LOG"
             elif grep -Fq "$file_path" "$EXISTING_STATE"; then
-                echo "New File Added: $file_path" >> "$EVENTS_LOG"
+                echo "New: $file_path" >> "$EVENTS_LOG"
             fi
         done <<< "$diff_output"
     fi
